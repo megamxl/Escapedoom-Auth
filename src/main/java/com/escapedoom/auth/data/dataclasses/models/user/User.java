@@ -1,5 +1,6 @@
-package com.escapedoom.auth.user;
+package com.escapedoom.auth.data.dataclasses.models.user;
 
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -21,16 +23,17 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long user_id;
     private String lastname;
     private String firstname;
     //TODO make uniqe and nn
     @Column(unique = true)
     private String email;
     private String _password;
-
     @Enumerated(EnumType.STRING)
     private Role role;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<Escaperoom> escaperooms;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -67,4 +70,15 @@ public class User implements UserDetails {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "user_id=" + user_id +
+                ", lastname='" + lastname + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", email='" + email + '\'' +
+                ", _password='" + _password + '\'' +
+                ", role=" + role +
+                '}';
+    }
 }

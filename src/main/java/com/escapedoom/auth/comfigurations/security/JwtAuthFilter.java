@@ -1,4 +1,4 @@
-package com.escapedoom.auth.comfigurations;
+package com.escapedoom.auth.comfigurations.security;
 
 import com.escapedoom.auth.utils.JwtService;
 import jakarta.servlet.FilterChain;

@@ -1,12 +1,12 @@
 package com.escapedoom.auth.Service;
 
 
-import com.escapedoom.auth.dataclasses.Requests.AuthenticationRequest;
-import com.escapedoom.auth.dataclasses.Requests.RegisterRequest;
-import com.escapedoom.auth.dataclasses.Respones.AuthenticationResponse;
-import com.escapedoom.auth.user.Role;
-import com.escapedoom.auth.user.User;
-import com.escapedoom.auth.user.UserRepository;
+import com.escapedoom.auth.data.dataclasses.Requests.AuthenticationRequest;
+import com.escapedoom.auth.data.dataclasses.Requests.RegisterRequest;
+import com.escapedoom.auth.data.dataclasses.Respones.AuthenticationResponse;
+import com.escapedoom.auth.data.dataclasses.models.user.Role;
+import com.escapedoom.auth.data.dataclasses.models.user.User;
+import com.escapedoom.auth.data.dataclasses.repositories.UserRepository;
 import com.escapedoom.auth.utils.JwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

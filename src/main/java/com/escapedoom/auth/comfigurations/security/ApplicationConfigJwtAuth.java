@@ -1,6 +1,6 @@
-package com.escapedoom.auth.comfigurations;
+package com.escapedoom.auth.comfigurations.security;
 
-import com.escapedoom.auth.user.UserRepository;
+import com.escapedoom.auth.data.dataclasses.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

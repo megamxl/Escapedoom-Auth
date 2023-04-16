@@ -1,4 +1,4 @@
-package com.escapedoom.auth.dataclasses.Respones;
+package com.escapedoom.auth.data.dataclasses.Respones;
 
 import lombok.*;
 
