@@ -1,12 +1,12 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/jwt_security
-    username: test
-    password: test
+    url: jdbc:postgresql://localhost:5432/LectorPortal
+    username: baeldung
+    password: baeldung
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     #TODO Deletes everything when stopped change if needed
     show-sql: true
     properties:

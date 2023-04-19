@@ -1,7 +1,10 @@
 package com.escapedoom.auth.data.dataclasses.models.escaperoom;
 
 import com.escapedoom.auth.data.dataclasses.models.user.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,12 +15,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Escaperoom {
+public class OpenLobbys {
+
     @Id
     @GeneratedValue
-    private Long escaperoom_id;
+    private Long lobby_Id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne
+    private Escaperoom escaperoom;
+
+    @OneToOne
     private User user;
+
 }
