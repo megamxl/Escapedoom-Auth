@@ -23,6 +23,8 @@ public class Player {
     private String name;
 
     @Column(unique = true)
-    private String sessionID;
+    private String httpSessionID;
+
+    private Long escaperoomSession;
 
 }

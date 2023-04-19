@@ -2,10 +2,12 @@ package com.escapedoom.gamesession.services;
 
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -59,18 +61,28 @@ public class PlayerStateManagementService {
     private Random random =new Random();
 
 
-    public String mangeStateBySessionID(String sessionID) {
-        Player player = sessionManagementRepository.findPlayerBySessionID(sessionID);
+    public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
+        Player player = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
         if (player != null) {
             return player.getName();
         } else {
             player = Player.builder()
                     .name(getRandomName())
-                    .sessionID(sessionID)
+                    .httpSessionID(httpSessionID)
+                    .escaperoomSession(escaperoomSession)
                     .build();
             sessionManagementRepository.save(player);
             return player.getName();
         }
+    }
+    @Transactional
+    public String  deleteAllPlayersByEscaperoomID(Long id) {
+        sessionManagementRepository.deleteAllByEscaperoomSession(id);
+        return "done";
+    }
+
+    public List<Player> getAllPlayersByEscapeRoomID(Long id) {
+        return sessionManagementRepository.findAllByEscaperoomSession(id).orElseThrow();
     }
 
     private String getRandomName() {
