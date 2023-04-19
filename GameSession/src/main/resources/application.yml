@@ -1,8 +1,12 @@
 spring:
+  session:
+    redis:
+      namespace: spring:session
+    timeout: 12h
   datasource:
-    url: jdbc:postgresql://localhost:5432/jwt_security
-    username: test
-    password: test
+    url: jdbc:postgresql://localhost:5432/baeldung
+    username: baeldung
+    password: baeldung
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,10 +18,11 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  r2dbc:
-    password: test
-    url: r2dbc:postgresql://localhost:5432/jwt_security
-    username: test
-
+  data:
+    redis:
+      host: localhost
+      password:
+      port: 6379
+      username:
 server:
   port: 8090
