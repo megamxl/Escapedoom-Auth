@@ -6,6 +6,7 @@ import com.escapedoom.auth.data.dataclasses.models.user.User;
 import com.escapedoom.auth.data.dataclasses.repositories.EscaperoomRepository;
 import com.escapedoom.auth.data.dataclasses.repositories.LobbyRepository;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,8 +44,25 @@ public class EscaperoomService {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            lobbyRepository.save(OpenLobbys.builder().escaperoom(escaperoom).user(getUser()).build());
-            return "Done";
+            var curr = lobbyRepository.findByEscaperoomAndUser(escaperoom, getUser());
+            if (curr.isPresent()) {
+                return curr.get().getLobby_Id().toString();
+            }
+
+            var newRoom = lobbyRepository.save(OpenLobbys.builder().escaperoom(escaperoom).user(getUser()).build());
+            return newRoom.getLobby_Id().toString();
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    public String stopEscapeRoom(Long escapeRoomId) {
+        var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
+
+        if (escaperoom != null && getUser() != null) {
+            lobbyRepository.deleteByEscaperoomAndUser(escaperoom, getUser());
+            return "Stoped EscapeRoom with ID";
         } else {
             return null;
         }

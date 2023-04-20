@@ -23,14 +23,18 @@ public class EscapeRoomPortalController {
 
     @PostMapping("/saveEscaperoom")
     ResponseEntity<String> saveEscapeRoom() {
-        var  m = SecurityContextHolder.getContext();
         escaperoomService.createADummyRoom();
         return ResponseEntity.ok("here would be the escape rooms");
     }
 
-    @PostMapping(value = "startEscapeRoom/{escapeRoomId}/")
-    public ResponseEntity<String> getUsersInLobby(@PathVariable("escapeRoomId") Long lobbyId) {
+    @PostMapping(value = "startEscapeRoom/{escapeRoomId}")
+    public ResponseEntity<String> startEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
         return ResponseEntity.ok(escaperoomService.startEscapeRoom(lobbyId));
+    }
+
+    @PostMapping(value = "stopEscapeRoom/{escapeRoomId}")
+    public ResponseEntity<String> stopEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
+        return ResponseEntity.ok(escaperoomService.stopEscapeRoom(lobbyId));
     }
 
 }

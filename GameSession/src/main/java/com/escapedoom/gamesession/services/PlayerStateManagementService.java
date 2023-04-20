@@ -1,6 +1,8 @@
 package com.escapedoom.gamesession.services;
 
+import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
+import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,8 @@ import java.util.Random;
 public class PlayerStateManagementService {
 
     private final SessionManagementRepository sessionManagementRepository;
+
+    private final OpenLobbyRepository openLobbyRepository;
 
     private ArrayList<String> firstNames = new ArrayList<>() {{
         add("Shadow");
@@ -60,8 +64,12 @@ public class PlayerStateManagementService {
 
     private Random random =new Random();
 
-
     public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
+        //TODO check if the escaperommSessioni joinable
+        if (!openLobbyRepository.findByLobbyId(escaperoomSession).isPresent()) {
+            return "This room isn't open";
+        }
+
         Player player = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
         if (player != null) {
             return player.getName();

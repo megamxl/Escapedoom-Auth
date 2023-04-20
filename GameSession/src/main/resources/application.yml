@@ -4,9 +4,9 @@ spring:
       namespace: spring:session
     timeout: 12h
   datasource:
-    url: jdbc:postgresql://localhost:5432/baeldung
-    username: baeldung
-    password: baeldung
+    url: jdbc:postgresql://localhost:5432/LectorPortal
+    username: myuser
+    password: mypassword
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

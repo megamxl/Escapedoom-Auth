@@ -15,4 +15,8 @@ public interface LobbyRepository extends JpaRepository<OpenLobbys, Long> {
 
     //Optional<List<Escaperoom>> findEscaperoomByUser(User User);
 
+    void deleteByEscaperoomAndUser(Escaperoom escaperoom, User user);
+
+    Optional<OpenLobbys> findByEscaperoomAndUser(Escaperoom escaperoom, User user);
+
 }

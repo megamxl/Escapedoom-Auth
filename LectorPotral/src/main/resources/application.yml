@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/LectorPortal
-    username: baeldung
-    password: baeldung
+    username: myuser
+    password: mypassword
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
