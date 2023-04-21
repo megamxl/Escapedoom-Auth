@@ -102,5 +102,15 @@ public class PlayerStateManagementService {
         return firstNames.get((random.nextInt(0, firstNames.size()))) + secondNames.get(random.nextInt(0, secondNames.size()));
     }
 
+    public void informAboutStart(Long id) {
+        if (openLobbyRepository.findByLobbyId(id).get().getState() ==  EscapeRoomState.PLAYING) {
+
+            //TODO inform all clients that game has started
+            System.out.println("informing clients");
+
+        }
+
+    }
+
 
 }
