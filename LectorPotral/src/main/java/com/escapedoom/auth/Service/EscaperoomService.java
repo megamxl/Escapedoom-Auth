@@ -1,5 +1,6 @@
 package com.escapedoom.auth.Service;
 
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.OpenLobbys;
 import com.escapedoom.auth.data.dataclasses.models.user.User;
@@ -40,28 +41,32 @@ public class EscaperoomService {
         return ret;
     }
 
-    public String startEscapeRoom(Long escapeRoomId) {
+    public String openEscapeRoom(Long escapeRoomId) {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            var curr = lobbyRepository.findByEscaperoomAndUser(escaperoom, getUser());
+            var curr = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom, getUser());
             if (curr.isPresent()) {
-                return curr.get().getLobby_Id().toString();
+                if (curr.get().getState() != EscapeRoomState.STOPED) {
+                    return curr.get().getLobby_Id().toString();
+                }
             }
-
-            var newRoom = lobbyRepository.save(OpenLobbys.builder().escaperoom(escaperoom).user(getUser()).build());
+            var newRoom = lobbyRepository.save(OpenLobbys.builder().escaperoom(escaperoom).user(getUser()).state(EscapeRoomState.JOINABLE).build());
             return newRoom.getLobby_Id().toString();
         } else {
             return null;
         }
     }
 
+
     @Transactional
-    public String stopEscapeRoom(Long escapeRoomId) {
+    public String changeEscapeRoomState(Long escapeRoomId, EscapeRoomState escapeRoomState) {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            lobbyRepository.deleteByEscaperoomAndUser(escaperoom, getUser());
+            OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom, getUser()).get();
+            openLobbys.setState(escapeRoomState);
+            lobbyRepository.save(openLobbys);
             return "Stoped EscapeRoom with ID";
         } else {
             return null;

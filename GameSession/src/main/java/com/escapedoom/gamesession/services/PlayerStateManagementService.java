@@ -1,5 +1,6 @@
 package com.escapedoom.gamesession.services;
 
+import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
@@ -66,13 +67,16 @@ public class PlayerStateManagementService {
 
     public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
         //TODO check if the escaperommSessioni joinable
-        if (!openLobbyRepository.findByLobbyId(escaperoomSession).isPresent()) {
+        OpenLobbys lobby = openLobbyRepository.findByLobbyId(escaperoomSession).get();
+        if (lobby.getState() == EscapeRoomState.STOPED ) {
             return "This room isn't open";
         }
 
         Player player = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
         if (player != null) {
-            return player.getName();
+            if (lobby.getState() == EscapeRoomState.PLAYING) {
+                //TODO return the last saved state
+            }
         } else {
             player = Player.builder()
                     .name(getRandomName())
@@ -80,8 +84,9 @@ public class PlayerStateManagementService {
                     .escaperoomSession(escaperoomSession)
                     .build();
             sessionManagementRepository.save(player);
-            return player.getName();
+            //TODO return the last saved state
         }
+        return player.getName();
     }
     @Transactional
     public String  deleteAllPlayersByEscaperoomID(Long id) {

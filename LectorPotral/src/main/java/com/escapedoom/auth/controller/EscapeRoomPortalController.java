@@ -1,10 +1,10 @@
 package com.escapedoom.auth.controller;
 
 import com.escapedoom.auth.Service.EscaperoomService;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,14 +27,19 @@ public class EscapeRoomPortalController {
         return ResponseEntity.ok("here would be the escape rooms");
     }
 
+    @PostMapping(value = "openEscapeRoom/{escapeRoomId}")
+    public ResponseEntity<String> openEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
+        return ResponseEntity.ok(escaperoomService.openEscapeRoom(lobbyId));
+    }
+
     @PostMapping(value = "startEscapeRoom/{escapeRoomId}")
     public ResponseEntity<String> startEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
-        return ResponseEntity.ok(escaperoomService.startEscapeRoom(lobbyId));
+        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.PLAYING));
     }
 
     @PostMapping(value = "stopEscapeRoom/{escapeRoomId}")
     public ResponseEntity<String> stopEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
-        return ResponseEntity.ok(escaperoomService.stopEscapeRoom(lobbyId));
+        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.STOPED));
     }
 
 }

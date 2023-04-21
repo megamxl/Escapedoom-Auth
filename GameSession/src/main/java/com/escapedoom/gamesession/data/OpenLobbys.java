@@ -1,9 +1,6 @@
 package com.escapedoom.gamesession.data;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,5 +21,6 @@ public class OpenLobbys {
 
     private Long user_user_id;
 
-
+    @Enumerated(EnumType.STRING)
+    private EscapeRoomState state;
 }
