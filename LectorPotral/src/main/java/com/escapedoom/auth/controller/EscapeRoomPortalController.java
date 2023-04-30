@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1/portal-escape-room")
 @RequiredArgsConstructor
 public class EscapeRoomPortalController {
 
     private final EscaperoomService escaperoomService;
 
+    @CrossOrigin
     @GetMapping("/getAll")
     ResponseEntity<List<EscaperoomDTO>> getAllEscapeRoom() {
         return ResponseEntity.ok(escaperoomService.getAllRoomsByAnUser());

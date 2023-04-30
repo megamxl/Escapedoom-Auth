@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class Security {
     @Bean
     public SecurityFilterChain securityFilerChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable()
+        httpSecurity.csrf().disable().cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
                 .formLogin().disable()
                 .httpBasic().disable()

@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    //TODO move to profile file actual length 256 move to 4069 in future
+    //TODO move to profile file actual length 256 move to 4096 in future
     private static final String SECRET_KEY = "703273357638792F423F4528482B4D6251655468576D597135897677397A2443";
 
     public String extractUsername(String token) {

@@ -20,7 +20,7 @@ services:
     environment:
       POSTGRES_USER: myuser           #optional damit auch user+password vorhanden
       POSTGRES_PASSWORD: mypassword   #required
-      #POSTGRES_DB: LectorPortal       #optional fr default database
+      POSTGRES_DB: LectorPortal       #optional fr default database
     ports:
       - 5432:5432
     volumes:

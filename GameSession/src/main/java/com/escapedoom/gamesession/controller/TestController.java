@@ -7,20 +7,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.session.Session;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RequiredArgsConstructor
+@CrossOrigin
 @RestController
 @RequestMapping("/api/join")
 public class TestController {
 
     private final PlayerStateManagementService playerStateManagementService;
 
+    @CrossOrigin
     @GetMapping("/{escaperoom_id}")
     public String sessionId(@PathVariable Long escaperoom_id, HttpServletRequest httpSession){
         return playerStateManagementService.mangeStateBySessionID(httpSession.getSession().getId(), escaperoom_id);
