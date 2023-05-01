@@ -40,7 +40,11 @@ public class EscaperoomService {
     public void createADummyRoom() {
         var user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Escaperoom dummy =
-                Escaperoom.builder().user((User) user).build();
+                Escaperoom.builder().user((User) user).
+                        name("Catch me")
+                        .topic("Yee")
+                        .time(90)
+                        .build();
         escaperoomRepository.save(dummy);
     }
 

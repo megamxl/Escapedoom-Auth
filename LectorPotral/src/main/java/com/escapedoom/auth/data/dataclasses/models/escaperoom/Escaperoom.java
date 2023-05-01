@@ -20,4 +20,11 @@ public class Escaperoom {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    private String name;
+
+    private String topic;
+
+    private long time;
+
 }

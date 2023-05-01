@@ -6,7 +6,8 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update #FIXME: Changer back to 'update' when I want to persist data
+      ddl-auto: create-drop
+      #FIXME: Changer back to 'update' when I want to persist data
 
     #TODO Deletes everything when stopped change if needed
     show-sql: true
