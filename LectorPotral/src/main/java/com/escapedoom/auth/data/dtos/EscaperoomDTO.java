@@ -1,12 +1,12 @@
 package com.escapedoom.auth.data.dtos;
 
+import com.escapedoom.auth.Service.EscaperoomService;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
+@RequiredArgsConstructor
 public class EscaperoomDTO {
 
     private Long UserId;
@@ -19,11 +19,15 @@ public class EscaperoomDTO {
 
     private long time;
 
-    public EscaperoomDTO(Escaperoom escaperoom) {
+    private EscapeRoomState escapeRoomState;
+
+
+    public EscaperoomDTO(Escaperoom escaperoom, EscapeRoomState escapeRoomState) {
         this.escaproom_id = escaperoom.getEscaperoom_id();
         this.UserId = escaperoom.getUser().getUser_id();
         this.time = escaperoom.getTime();
         this.topic = escaperoom.getTopic();
         this.name = escaperoom.getName();
+        this.escapeRoomState = escapeRoomState;
     }
 }

@@ -18,9 +18,12 @@ public interface LobbyRepository extends JpaRepository<OpenLobbys, Long> {
 
     void deleteByEscaperoomAndUser(Escaperoom escaperoom, User user);
 
-    Optional<OpenLobbys> findByEscaperoomAndUser(Escaperoom escaperoom, User user);
+    Optional<List<OpenLobbys>> findByEscaperoomAndUser(Escaperoom escaperoom, User user);
 
-    @Query(value = "select * from open_lobbys op where op.state not like 'STOPED'", nativeQuery = true)
-    Optional<OpenLobbys> findByEscaperoomAndUserAndStateStopedNot(Escaperoom escaperoom, User user);
+    @Query(value = "select * " +
+            "from open_lobbys op " +
+            "where op.state not like 'STOPED' " +
+            "and op.escaperoom_escaperoom_id = ?1 ", nativeQuery = true)
+    Optional<OpenLobbys> findByEscaperoomAndUserAndStateStopedNot(Long escaperoomID, User user);
 
 }

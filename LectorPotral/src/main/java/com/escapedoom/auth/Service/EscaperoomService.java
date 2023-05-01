@@ -51,7 +51,15 @@ public class EscaperoomService {
     public List<EscaperoomDTO> getAllRoomsByAnUser() {
         var rooms = escaperoomRepository.findEscaperoomByUser(getUser()).orElseThrow();
         List<EscaperoomDTO> ret = new ArrayList<>();
-        rooms.stream().forEach(curr -> ret.add(new EscaperoomDTO(curr)));
+        for (Escaperoom escaperoom : rooms) {
+            var m = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom.getEscaperoom_id(), getUser());
+            EscapeRoomState escapeRoomState = EscapeRoomState.STOPED;
+            if (m.isPresent()) {
+                escapeRoomState = m.get().getState();
+            }
+            ret.add(new EscaperoomDTO(escaperoom, escapeRoomState));
+        }
+
         return ret;
     }
 
@@ -59,7 +67,7 @@ public class EscaperoomService {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            var curr = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom, getUser());
+            var curr = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom.getEscaperoom_id(), getUser());
             if (curr.isPresent()) {
                 if (curr.get().getState() != EscapeRoomState.STOPED) {
                     return curr.get().getLobby_Id().toString();
@@ -78,7 +86,7 @@ public class EscaperoomService {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom, getUser()).get();
+            OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom.getEscaperoom_id(), getUser()).get();
             openLobbys.setState(escapeRoomState);
             lobbyRepository.save(openLobbys);
             if (escapeRoomState == EscapeRoomState.PLAYING) {
