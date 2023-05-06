@@ -1,6 +1,5 @@
 package com.escapedoom.auth.Service;
 
-import com.escapedoom.auth.data.dataclasses.Respones.AuthenticationResponse;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.OpenLobbys;
@@ -8,7 +7,6 @@ import com.escapedoom.auth.data.dataclasses.models.user.User;
 import com.escapedoom.auth.data.dataclasses.repositories.EscaperoomRepository;
 import com.escapedoom.auth.data.dataclasses.repositories.LobbyRepository;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -18,10 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +46,8 @@ public class EscaperoomService {
         var rooms = escaperoomRepository.findEscaperoomByUser(getUser()).orElseThrow();
         List<EscaperoomDTO> ret = new ArrayList<>();
         for (Escaperoom escaperoom : rooms) {
-            var m = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom.getEscaperoom_id(), getUser());
-            EscapeRoomState escapeRoomState = EscapeRoomState.STOPED;
+            var m = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser());
+            EscapeRoomState escapeRoomState = EscapeRoomState.STOPPED;
             if (m.isPresent()) {
                 escapeRoomState = m.get().getState();
             }
@@ -67,9 +61,9 @@ public class EscaperoomService {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            var curr = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom.getEscaperoom_id(), getUser());
+            var curr = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser());
             if (curr.isPresent()) {
-                if (curr.get().getState() != EscapeRoomState.STOPED) {
+                if (curr.get().getState() != EscapeRoomState.STOPPED) {
                     return curr.get().getLobby_Id().toString();
                 }
             }
@@ -86,13 +80,13 @@ public class EscaperoomService {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
-            OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStopedNot(escaperoom.getEscaperoom_id(), getUser()).get();
+            OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser()).get();
             openLobbys.setState(escapeRoomState);
             lobbyRepository.save(openLobbys);
             if (escapeRoomState == EscapeRoomState.PLAYING) {
                 informSession(openLobbys.getLobby_Id());
             }
-            return "Stoped EscapeRoom with ID";
+            return "Stopped EscapeRoom with ID";
         } else {
             return null;
         }

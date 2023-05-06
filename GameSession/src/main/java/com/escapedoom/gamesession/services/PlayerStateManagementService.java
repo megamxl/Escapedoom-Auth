@@ -68,7 +68,7 @@ public class PlayerStateManagementService {
     public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
         //TODO check if the escaperommSessioni joinable
         OpenLobbys lobby = openLobbyRepository.findByLobbyId(escaperoomSession).get();
-        if (lobby.getState() == EscapeRoomState.STOPED ) {
+        if (lobby.getState() == EscapeRoomState.STOPPED) {
             return "This room isn't open";
         }
 

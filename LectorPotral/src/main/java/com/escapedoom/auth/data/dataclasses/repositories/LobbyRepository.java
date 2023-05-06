@@ -22,8 +22,8 @@ public interface LobbyRepository extends JpaRepository<OpenLobbys, Long> {
 
     @Query(value = "select * " +
             "from open_lobbys op " +
-            "where op.state not like 'STOPED' " +
+            "where op.state not like 'STOPPED' " +
             "and op.escaperoom_escaperoom_id = ?1 ", nativeQuery = true)
-    Optional<OpenLobbys> findByEscaperoomAndUserAndStateStopedNot(Long escaperoomID, User user);
+    Optional<OpenLobbys> findByEscaperoomAndUserAndStateStoppedNot(Long escaperoomID, User user);
 
 }

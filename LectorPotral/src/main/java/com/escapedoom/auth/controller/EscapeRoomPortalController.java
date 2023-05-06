@@ -29,19 +29,22 @@ public class EscapeRoomPortalController {
         return ResponseEntity.ok("here would be the escape rooms");
     }
 
+    @CrossOrigin
     @PostMapping(value = "openEscapeRoom/{escapeRoomId}")
     public ResponseEntity<String> openEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
         return ResponseEntity.ok(escaperoomService.openEscapeRoom(lobbyId));
     }
 
+    @CrossOrigin
     @PostMapping(value = "startEscapeRoom/{escapeRoomId}")
     public ResponseEntity<String> startEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
         return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.PLAYING));
     }
 
+    @CrossOrigin
     @PostMapping(value = "stopEscapeRoom/{escapeRoomId}")
     public ResponseEntity<String> stopEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
-        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.STOPED));
+        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.STOPPED));
     }
 
 }

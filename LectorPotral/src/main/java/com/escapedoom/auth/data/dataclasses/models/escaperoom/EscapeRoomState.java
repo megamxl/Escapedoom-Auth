@@ -4,5 +4,5 @@ public enum EscapeRoomState {
 
     JOINABLE,
     PLAYING,
-    STOPED,
+    STOPPED,
 }
