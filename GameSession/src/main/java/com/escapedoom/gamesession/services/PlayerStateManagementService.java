@@ -140,7 +140,7 @@ public class PlayerStateManagementService {
                     try {
                         var jsonPlayers = new JSONObject();
                         jsonPlayers.put("players",players.get().stream().map(Player::getName).collect(Collectors.toList()));
-                        sseEmitter.send(SseEmitter.event().name("allNames").data(jsonPlayers.toString()));
+                        sseEmitterExtended.send(SseEmitter.event().name("allNames").data(jsonPlayers.toString()));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
