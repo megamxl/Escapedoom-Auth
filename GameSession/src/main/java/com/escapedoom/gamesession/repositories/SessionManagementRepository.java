@@ -8,11 +8,10 @@ import java.util.Optional;
 
 public interface SessionManagementRepository extends JpaRepository<Player, Long> {
 
-    Player findPlayerByHttpSessionID(String sessionID);
+    Optional<Player> findPlayerByHttpSessionID(String sessionID);
 
     void deleteAllByEscaperoomSession(Long escaperoomSession);
 
     Optional<List<Player>> findAllByEscaperoomSession(Long escaperoomSession);
-
 
 }

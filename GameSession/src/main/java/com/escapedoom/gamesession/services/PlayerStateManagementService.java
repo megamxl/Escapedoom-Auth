@@ -71,7 +71,7 @@ public class PlayerStateManagementService {
 
     private Random random =new Random();
 
-    public SseEmitterExtended mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
+    public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
 
         Optional<OpenLobbys> lobbyOpt = openLobbyRepository.findByLobbyId(escaperoomSession);
         OpenLobbys lobby = null;
@@ -81,8 +81,10 @@ public class PlayerStateManagementService {
             lobby = lobbyOpt.get();
         }
 
-        Player player = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
-        if (player != null) {
+        var optplayer = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
+        Player player;
+        if (optplayer.isPresent()) {
+            player = optplayer.get();
             switch (lobby.getState()) {
                 case JOINABLE -> {
                     //TODO FIND EMITER WITH ID DELETE AND REPLACE
@@ -103,10 +105,22 @@ public class PlayerStateManagementService {
             sessionManagementRepository.save(player);
             //TODO return the last saved state
         }
+        return player.getName();
+    }
+
+    public SseEmitterExtended lobbyConnection(String httpId) {
+
+        var optplayer = sessionManagementRepository.findPlayerByHttpSessionID(httpId);
+        Player player;
+        if (optplayer.isPresent()) {
+            player = optplayer.get();
+        } else {
+            return null;
+        }
 
         SseEmitterExtended sseEmitter = new SseEmitterExtended();
-        sseEmitter.setHttpID(httpSessionID);
-        sseEmitter.setLobby_id(escaperoomSession);
+        sseEmitter.setHttpID(httpId);
+        sseEmitter.setLobby_id(player.getEscaperoomSession());
         sseEmitter.setName(player.getName());
         try {
             sseEmitter.send(SseEmitter.event().name("yourName").data(sseEmitter.getName()));
@@ -115,12 +129,12 @@ public class PlayerStateManagementService {
         }
         sseEmitters.add(sseEmitter);
 
-        var players = sessionManagementRepository.findAllByEscaperoomSession(escaperoomSession);
+        var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
 
         for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
             if (players.isPresent()) {
-                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), escaperoomSession));
-                if (sseEmitterExtended.getLobby_id().equals(escaperoomSession)) {
+                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
+                if (sseEmitterExtended.getLobby_id().equals(player.getEscaperoomSession())) {
                     try {
                         sseEmitter.send(SseEmitter.event().name("allNames").data(players.get().stream().map(Player::getName).collect(Collectors.toList())));
                     } catch (IOException e) {
@@ -129,9 +143,9 @@ public class PlayerStateManagementService {
                 }
             }
         }
-
         return sseEmitter;
     }
+
     @Transactional
     public String  deleteAllPlayersByEscaperoomID(Long id) {
         sessionManagementRepository.deleteAllByEscaperoomSession(id);
