@@ -107,6 +107,7 @@ public class PlayerStateManagementService {
             sessionManagementRepository.save(player);
             //TODO return the last saved state
         }
+
         return player.getName();
     }
 
@@ -131,15 +132,22 @@ public class PlayerStateManagementService {
         }
         sseEmitters.add(sseEmitter);
 
+        informClients(player);
+        return sseEmitter;
+    }
+
+    public void informClients(Player player) {
+
         var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
 
         for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
             if (players.isPresent()) {
                 players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
+
                 if (sseEmitterExtended.getLobby_id().equals(player.getEscaperoomSession())) {
+                    var jsonPlayers = new JSONObject();
+                    jsonPlayers.put("players",players.get().stream().map(Player::getName).collect(Collectors.toList()));
                     try {
-                        var jsonPlayers = new JSONObject();
-                        jsonPlayers.put("players",players.get().stream().map(Player::getName).collect(Collectors.toList()));
                         sseEmitterExtended.send(SseEmitter.event().name("allNames").data(jsonPlayers.toString()));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -147,8 +155,9 @@ public class PlayerStateManagementService {
                 }
             }
         }
-        return sseEmitter;
+
     }
+
 
     @Transactional
     public String  deleteAllPlayersByEscaperoomID(Long id) {

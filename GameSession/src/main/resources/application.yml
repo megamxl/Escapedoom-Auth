@@ -1,4 +1,7 @@
 spring:
+  mvc:
+    async:
+      request-timeout: -1
   session:
     redis:
       namespace: spring:session
