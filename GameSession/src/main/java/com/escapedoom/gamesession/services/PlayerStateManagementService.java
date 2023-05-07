@@ -137,7 +137,8 @@ public class PlayerStateManagementService {
                 players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
                 if (sseEmitterExtended.getLobby_id().equals(player.getEscaperoomSession())) {
                     try {
-                        var jsonPlayers = new JSONObject(players.get().stream().map(Player::getName).collect(Collectors.toList()));
+                        var jsonPlayers = new JSONObject();
+                        jsonPlayers.put("players",players.get().stream().map(Player::getName).collect(Collectors.toList()));
                         sseEmitter.send(SseEmitter.event().name("allNames").data(jsonPlayers));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
