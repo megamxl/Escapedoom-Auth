@@ -8,6 +8,7 @@ import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -136,7 +137,8 @@ public class PlayerStateManagementService {
                 players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
                 if (sseEmitterExtended.getLobby_id().equals(player.getEscaperoomSession())) {
                     try {
-                        sseEmitter.send(SseEmitter.event().name("allNames").data(players.get().stream().map(Player::getName).collect(Collectors.toList())));
+                        var jsonPlayers = new JSONObject(players.get().stream().map(Player::getName).collect(Collectors.toList()));
+                        sseEmitter.send(SseEmitter.event().name("allNames").data(jsonPlayers));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
