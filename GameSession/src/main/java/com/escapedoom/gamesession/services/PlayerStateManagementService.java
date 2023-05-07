@@ -9,6 +9,7 @@ import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -139,7 +140,7 @@ public class PlayerStateManagementService {
                     try {
                         var jsonPlayers = new JSONObject();
                         jsonPlayers.put("players",players.get().stream().map(Player::getName).collect(Collectors.toList()));
-                        sseEmitter.send(SseEmitter.event().name("allNames").data(jsonPlayers));
+                        sseEmitter.send(SseEmitter.event().name("allNames").data(jsonPlayers.toString()));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
