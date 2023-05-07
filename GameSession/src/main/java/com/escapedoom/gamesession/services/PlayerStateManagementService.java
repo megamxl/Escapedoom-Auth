@@ -1,5 +1,6 @@
 package com.escapedoom.gamesession.services;
 
+import com.escapedoom.gamesession.SseEmitterExtended;
 import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
@@ -8,10 +9,12 @@ import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,9 @@ public class PlayerStateManagementService {
     private final SessionManagementRepository sessionManagementRepository;
 
     private final OpenLobbyRepository openLobbyRepository;
+
+    public List<SseEmitterExtended> sseEmitters = new CopyOnWriteArrayList<>();
+
 
     private ArrayList<String> firstNames = new ArrayList<>() {{
         add("Shadow");
@@ -63,19 +69,32 @@ public class PlayerStateManagementService {
         add("Slayer");
     }};
 
-    private Random random =new Random();
+    private final Random random =new Random();
 
     public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
-        //TODO check if the escaperommSessioni joinable
-        OpenLobbys lobby = openLobbyRepository.findByLobbyId(escaperoomSession).get();
-        if (lobby.getState() == EscapeRoomState.STOPPED) {
-            return "This room isn't open";
+
+        Optional<OpenLobbys> lobbyOpt = openLobbyRepository.findByLobbyId(escaperoomSession);
+        OpenLobbys lobby = null;
+        if (lobbyOpt.isEmpty()) {
+            return null;
+        }else {
+            lobby = lobbyOpt.get();
         }
 
-        Player player = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
-        if (player != null) {
-            if (lobby.getState() == EscapeRoomState.PLAYING) {
-                //TODO return the last saved state
+        var optplayer = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
+        Player player;
+        if (optplayer.isPresent()) {
+            player = optplayer.get();
+            switch (lobby.getState()) {
+                case JOINABLE -> {
+                    //TODO FIND EMITER WITH ID DELETE AND REPLACE
+                }
+                case PLAYING -> {
+                    //RETURN THE CURRENT STATE
+                }
+                case STOPPED -> {
+                    return null;
+                }
             }
         } else {
             player = Player.builder()
@@ -88,6 +107,45 @@ public class PlayerStateManagementService {
         }
         return player.getName();
     }
+
+    public SseEmitterExtended lobbyConnection(String httpId) {
+
+        var optplayer = sessionManagementRepository.findPlayerByHttpSessionID(httpId);
+        Player player;
+        if (optplayer.isPresent()) {
+            player = optplayer.get();
+        } else {
+            return null;
+        }
+
+        SseEmitterExtended sseEmitter = new SseEmitterExtended();
+        sseEmitter.setHttpID(httpId);
+        sseEmitter.setLobby_id(player.getEscaperoomSession());
+        sseEmitter.setName(player.getName());
+        try {
+            sseEmitter.send(SseEmitter.event().name("yourName").data(sseEmitter.getName()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        sseEmitters.add(sseEmitter);
+
+        var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
+
+        for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
+            if (players.isPresent()) {
+                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
+                if (sseEmitterExtended.getLobby_id().equals(player.getEscaperoomSession())) {
+                    try {
+                        sseEmitter.send(SseEmitter.event().name("allNames").data(players.get().stream().map(Player::getName).collect(Collectors.toList())));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return sseEmitter;
+    }
+
     @Transactional
     public String  deleteAllPlayersByEscaperoomID(Long id) {
         sessionManagementRepository.deleteAllByEscaperoomSession(id);

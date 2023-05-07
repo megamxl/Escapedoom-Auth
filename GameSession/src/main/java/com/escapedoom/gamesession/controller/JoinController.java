@@ -1,12 +1,11 @@
 package com.escapedoom.gamesession.controller;
 
+import com.escapedoom.gamesession.SseEmitterExtended;
 import com.escapedoom.gamesession.data.Player;
-import com.escapedoom.gamesession.repositories.SessionManagementRepository;
+import com.escapedoom.gamesession.data.response.JoinResponse;
 import com.escapedoom.gamesession.services.PlayerStateManagementService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.session.Session;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,15 +14,31 @@ import java.util.List;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/join")
-public class TestController {
+public class JoinController {
 
     private final PlayerStateManagementService playerStateManagementService;
 
+
     @CrossOrigin
-    @GetMapping("/{escaperoom_id}")
-    public String sessionId(@PathVariable Long escaperoom_id, HttpServletRequest httpSession){
-        return playerStateManagementService.mangeStateBySessionID(httpSession.getSession().getId(), escaperoom_id);
+    // method for joining / subscribing
+    @GetMapping(value = "/{escaperoom_id}")
+    public JoinResponse sessionId(@PathVariable Long escaperoom_id, HttpServletRequest httpSession){
+        var  name=  playerStateManagementService.mangeStateBySessionID(httpSession.getSession().getId(), escaperoom_id);
+        if (name != null) {
+            return JoinResponse.builder().name(name).sessionId(httpSession.getSession().getId()).build();
+        } else {
+            return null;
+        }
+        //TODO if (false /*chack if  player  is already in sse ppol or*/)
     }
+
+    @GetMapping(value = "lobby/{id}")
+    public SseEmitterExtended lobby(@PathVariable("id")String session) {
+        return playerStateManagementService.lobbyConnection(session);
+    }
+
+
+    // method to dispatch data to the rigth lobbys
 
     //TODO REMOVE IF THIS SERVICE KNOWS WHICH TO DELETE AND WHEN
     @GetMapping("delete/{escaperoom_id}")
