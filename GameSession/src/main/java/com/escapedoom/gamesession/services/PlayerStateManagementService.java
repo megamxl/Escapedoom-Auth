@@ -1,5 +1,6 @@
 package com.escapedoom.gamesession.services;
 
+import com.escapedoom.gamesession.SseEmitterExtended;
 import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
@@ -8,10 +9,12 @@ import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,9 @@ public class PlayerStateManagementService {
     private final SessionManagementRepository sessionManagementRepository;
 
     private final OpenLobbyRepository openLobbyRepository;
+
+    public List<SseEmitterExtended> sseEmitters = new CopyOnWriteArrayList<>();
+
 
     private ArrayList<String> firstNames = new ArrayList<>() {{
         add("Shadow");
@@ -65,17 +71,28 @@ public class PlayerStateManagementService {
 
     private Random random =new Random();
 
-    public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
-        //TODO check if the escaperommSessioni joinable
-        OpenLobbys lobby = openLobbyRepository.findByLobbyId(escaperoomSession).get();
-        if (lobby.getState() == EscapeRoomState.STOPPED) {
-            return "This room isn't open";
+    public SseEmitterExtended mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
+
+        Optional<OpenLobbys> lobbyOpt = openLobbyRepository.findByLobbyId(escaperoomSession);
+        OpenLobbys lobby = null;
+        if (lobbyOpt.isEmpty()) {
+            return null;
+        }else {
+            lobby = lobbyOpt.get();
         }
 
         Player player = sessionManagementRepository.findPlayerByHttpSessionID(httpSessionID);
         if (player != null) {
-            if (lobby.getState() == EscapeRoomState.PLAYING) {
-                //TODO return the last saved state
+            switch (lobby.getState()) {
+                case JOINABLE -> {
+                    //TODO FIND EMITER WITH ID DELETE AND REPLACE
+                }
+                case PLAYING -> {
+                    //RETURN THE CURRENT STATE
+                }
+                case STOPPED -> {
+                    return null;
+                }
             }
         } else {
             player = Player.builder()
@@ -86,7 +103,34 @@ public class PlayerStateManagementService {
             sessionManagementRepository.save(player);
             //TODO return the last saved state
         }
-        return player.getName();
+
+        SseEmitterExtended sseEmitter = new SseEmitterExtended();
+        sseEmitter.setHttpID(httpSessionID);
+        sseEmitter.setLobby_id(escaperoomSession);
+        sseEmitter.setName(player.getName());
+        try {
+            sseEmitter.send(SseEmitter.event().name("yourName").data(sseEmitter.getName()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        sseEmitters.add(sseEmitter);
+
+        var players = sessionManagementRepository.findAllByEscaperoomSession(escaperoomSession);
+
+        for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
+            if (players.isPresent()) {
+                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), escaperoomSession));
+                if (sseEmitterExtended.getLobby_id().equals(escaperoomSession)) {
+                    try {
+                        sseEmitter.send(SseEmitter.event().name("allNames").data(players.get().stream().map(Player::getName).collect(Collectors.toList())));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+
+        return sseEmitter;
     }
     @Transactional
     public String  deleteAllPlayersByEscaperoomID(Long id) {
