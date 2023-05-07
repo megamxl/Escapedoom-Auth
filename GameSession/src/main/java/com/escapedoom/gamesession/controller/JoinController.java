@@ -18,7 +18,6 @@ public class JoinController {
 
     private final PlayerStateManagementService playerStateManagementService;
 
-
     @CrossOrigin
     // method for joining / subscribing
     @GetMapping(value = "/{escaperoom_id}")
