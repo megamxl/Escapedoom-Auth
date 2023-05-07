@@ -14,4 +14,5 @@ public interface SessionManagementRepository extends JpaRepository<Player, Long>
 
     Optional<List<Player>> findAllByEscaperoomSession(Long escaperoomSession);
 
+
 }
