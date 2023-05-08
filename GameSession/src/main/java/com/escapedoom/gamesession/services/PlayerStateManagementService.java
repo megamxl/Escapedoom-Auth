@@ -197,7 +197,7 @@ public class PlayerStateManagementService {
                     failure.add(sseEmitterExtended);
                 }
                 if (!failure.isEmpty()) {
-                    //sseEmitters.removeAll(failure);
+                    sseEmitters.removeAll(failure);
                 }
             }
         }

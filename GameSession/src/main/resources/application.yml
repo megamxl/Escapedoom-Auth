@@ -11,6 +11,12 @@ spring:
     username: myuser
     password: mypassword
     driver-class-name: org.postgresql.Driver
+    hikari:
+      minimumIdle: 10
+      maximumPoolSize: 50
+      idleTimeout: 1200
+      connectionTimeout: 3000
+      leakDetectionThreshold: 3000
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -18,7 +24,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   data:
