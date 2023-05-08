@@ -132,8 +132,6 @@ public class PlayerStateManagementService {
             }
             informClients(player.getEscaperoomSession(), ALL_NAME_EVENT, jsonPlayers.toString());
         }
-
-        //TODO GETS CALLED TO OFTEN FIGURE OUT WHAT TO DO
     }
 
     public SseEmitterExtended lobbyConnection(String httpId) {
@@ -159,6 +157,13 @@ public class PlayerStateManagementService {
 
         try {
             sseEmitter.send(SseEmitter.event().name(YOUR_NAME_EVENT).data(sseEmitter.getName()));
+            var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
+            var jsonPlayers = new JSONObject();
+            if (players.isPresent()) {
+                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
+                jsonPlayers.put("players", players.get().stream().map(Player::getName).collect(Collectors.toList()));
+            }
+            sseEmitter.send(SseEmitter.event().name(ALL_NAME_EVENT).data(jsonPlayers.toString()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
