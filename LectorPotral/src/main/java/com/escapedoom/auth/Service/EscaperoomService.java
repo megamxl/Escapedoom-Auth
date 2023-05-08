@@ -74,8 +74,6 @@ public class EscaperoomService {
         }
     }
 
-
-    @Transactional
     public String changeEscapeRoomState(Long escapeRoomId, EscapeRoomState escapeRoomState) {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
@@ -83,6 +81,7 @@ public class EscaperoomService {
             OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser()).get();
             openLobbys.setState(escapeRoomState);
             lobbyRepository.save(openLobbys);
+            lobbyRepository.flush();
             if (escapeRoomState == EscapeRoomState.PLAYING) {
                 informSession(openLobbys.getLobby_Id());
             }

@@ -6,8 +6,10 @@ import com.escapedoom.gamesession.data.response.JoinResponse;
 import com.escapedoom.gamesession.services.PlayerStateManagementService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class JoinController {
 
     @CrossOrigin
     // method for joining / subscribing
-    @GetMapping(value = "/{escaperoom_id}")
+    @GetMapping(value = "/{escaperoom_id}", consumes = MediaType.ALL_VALUE)
     public JoinResponse sessionId(@PathVariable Long escaperoom_id, HttpServletRequest httpSession){
         var  name=  playerStateManagementService.mangeStateBySessionID(httpSession.getSession().getId(), escaperoom_id);
         if (name != null) {

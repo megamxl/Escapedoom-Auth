@@ -19,6 +19,7 @@ public interface LobbyRepository extends JpaRepository<OpenLobbys, Long> {
     void deleteByEscaperoomAndUser(Escaperoom escaperoom, User user);
 
     Optional<List<OpenLobbys>> findByEscaperoomAndUser(Escaperoom escaperoom, User user);
+    
 
     @Query(value = "select * " +
             "from open_lobbys op " +

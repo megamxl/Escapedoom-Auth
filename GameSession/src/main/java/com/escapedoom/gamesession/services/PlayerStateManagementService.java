@@ -8,8 +8,10 @@ import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,13 +22,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PlayerStateManagementService {
 
     private final SessionManagementRepository sessionManagementRepository;
 
     private final OpenLobbyRepository openLobbyRepository;
 
-    public List<SseEmitterExtended> sseEmitters = new CopyOnWriteArrayList<>();
+    private final String ALL_NAME_EVENT = "allNames";
+    private final String YOUR_NAME_EVENT = "yourName";
+    private final String START_PLAYING_EVENT = "started";
+    public final List<SseEmitterExtended> sseEmitters = new CopyOnWriteArrayList<>();
+
+    private boolean update = false;
 
 
     private ArrayList<String> firstNames = new ArrayList<>() {{
@@ -71,15 +79,15 @@ public class PlayerStateManagementService {
         add("Slayer");
     }};
 
-    private final Random random =new Random();
+    private final Random random = new Random();
 
-    public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession)  {
+    public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession) {
 
         Optional<OpenLobbys> lobbyOpt = openLobbyRepository.findByLobbyId(escaperoomSession);
         OpenLobbys lobby = null;
         if (lobbyOpt.isEmpty()) {
             return null;
-        }else {
+        } else {
             lobby = lobbyOpt.get();
         }
 
@@ -108,59 +116,87 @@ public class PlayerStateManagementService {
             //TODO return the last saved state
         }
 
+        update = true;
         return player.getName();
+    }
+
+    private void inforAllPlayersAboutPlayers(Player player) {
+        var jsonPlayers = new JSONObject();
+        var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
+        if (players.isPresent()) {
+            players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
+            jsonPlayers.put("players", players.get().stream().map(Player::getName).collect(Collectors.toList()));
+        }
+
+        //TODO GETS CALLED TO OFTEN FIGURE OUT WHAT TO DO
+        informClients(player.getEscaperoomSession(), ALL_NAME_EVENT, jsonPlayers.toString());
     }
 
     public SseEmitterExtended lobbyConnection(String httpId) {
 
+        SseEmitterExtended sseEmitter = new SseEmitterExtended();
+        sseEmitter.onTimeout(() -> {
+            sseEmitter.complete();
+            sseEmitters.remove(sseEmitter);
+        });
+        Player player ;
         var optplayer = sessionManagementRepository.findPlayerByHttpSessionID(httpId);
-        Player player;
         if (optplayer.isPresent()) {
             player = optplayer.get();
         } else {
             return null;
         }
 
-        SseEmitterExtended sseEmitter = new SseEmitterExtended();
         sseEmitter.setHttpID(httpId);
         sseEmitter.setLobby_id(player.getEscaperoomSession());
         sseEmitter.setName(player.getName());
-        try {
-            sseEmitter.send(SseEmitter.event().name("yourName").data(sseEmitter.getName()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         sseEmitters.add(sseEmitter);
 
-        informClients(player);
+
+        try {
+            sseEmitter.send(SseEmitter.event().name(YOUR_NAME_EVENT).data(sseEmitter.getName()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        sseEmitter.onCompletion(() -> {
+            synchronized (this.sseEmitters) {
+                this.sseEmitters.remove(sseEmitter);
+            }
+        });
+        if (update) {
+            inforAllPlayersAboutPlayers(player);
+            update = false;
+        }
         return sseEmitter;
     }
 
-    public void informClients(Player player) {
+    public void informClients(Long esceproomId, String eventName, Object toSend) {
+        if (sseEmitters.isEmpty()) {
+            log.atInfo().log("No active Emitters ");
+            return;
+        }
 
-        var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
-
+        ArrayList<SseEmitterExtended> failure = new ArrayList<>();
         for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
-            if (players.isPresent()) {
-                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
-
-                if (sseEmitterExtended.getLobby_id().equals(player.getEscaperoomSession())) {
-                    var jsonPlayers = new JSONObject();
-                    jsonPlayers.put("players",players.get().stream().map(Player::getName).collect(Collectors.toList()));
-                    try {
-                        sseEmitterExtended.send(SseEmitter.event().name("allNames").data(jsonPlayers.toString()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            if (sseEmitterExtended != null) {
+                try {
+                    if (sseEmitterExtended.getLobby_id() == esceproomId) {
+                        sseEmitterExtended.send(SseEmitter.event().name(eventName).data(toSend));
+                        sseEmitterExtended.complete();
                     }
+                } catch (Exception ignored) {
+                    failure.add(sseEmitterExtended);
+                }
+                if (!failure.isEmpty()) {
+                    //sseEmitters.removeAll(failure);
                 }
             }
         }
-
     }
 
 
     @Transactional
-    public String  deleteAllPlayersByEscaperoomID(Long id) {
+    public String deleteAllPlayersByEscaperoomID(Long id) {
         sessionManagementRepository.deleteAllByEscaperoomSession(id);
         return "done";
     }
@@ -174,9 +210,8 @@ public class PlayerStateManagementService {
     }
 
     public void informAboutStart(Long id) {
-        if (openLobbyRepository.findByLobbyId(id).get().getState() ==  EscapeRoomState.PLAYING) {
+        if (openLobbyRepository.findByLobbyId(id).get().getState() == EscapeRoomState.PLAYING) {
 
-            //TODO inform all clients that game has started
             System.out.println("informing clients");
 
         }
