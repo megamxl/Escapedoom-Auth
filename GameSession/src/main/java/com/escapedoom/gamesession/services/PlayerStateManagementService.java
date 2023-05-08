@@ -120,16 +120,20 @@ public class PlayerStateManagementService {
         return player.getName();
     }
 
-    private void inforAllPlayersAboutPlayers(Player player) {
+    private void inforAllPlayersAboutPlayers(Player player, Boolean playing) {
         var jsonPlayers = new JSONObject();
-        var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
-        if (players.isPresent()) {
-            players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
-            jsonPlayers.put("players", players.get().stream().map(Player::getName).collect(Collectors.toList()));
+        if (playing) {
+            informClients(player.getEscaperoomSession(), START_PLAYING_EVENT, new JSONObject());
+        } else {
+            var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
+            if (players.isPresent()) {
+                players.get().stream().filter(player1 -> Objects.equals(player1.getEscaperoomSession(), player.getEscaperoomSession()));
+                jsonPlayers.put("players", players.get().stream().map(Player::getName).collect(Collectors.toList()));
+            }
+            informClients(player.getEscaperoomSession(), ALL_NAME_EVENT, jsonPlayers.toString());
         }
 
         //TODO GETS CALLED TO OFTEN FIGURE OUT WHAT TO DO
-        informClients(player.getEscaperoomSession(), ALL_NAME_EVENT, jsonPlayers.toString());
     }
 
     public SseEmitterExtended lobbyConnection(String httpId) {
@@ -164,7 +168,7 @@ public class PlayerStateManagementService {
             }
         });
         if (update) {
-            inforAllPlayersAboutPlayers(player);
+            inforAllPlayersAboutPlayers(player, false);
             update = false;
         }
         return sseEmitter;
@@ -212,7 +216,12 @@ public class PlayerStateManagementService {
     public void informAboutStart(Long id) {
         if (openLobbyRepository.findByLobbyId(id).get().getState() == EscapeRoomState.PLAYING) {
 
-            System.out.println("informing clients");
+            Optional<List<Player>> allByEscaperoomSession = sessionManagementRepository.findAllByEscaperoomSession(id);
+            if (allByEscaperoomSession.isPresent()) {
+
+                inforAllPlayersAboutPlayers(allByEscaperoomSession.get().get(0),true);
+                System.out.println("informing clients");
+            }
 
         }
 
