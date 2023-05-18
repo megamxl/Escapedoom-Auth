@@ -3,15 +3,27 @@ package com.escapedoom.auth.Service;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.OpenLobbys;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.*;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ConsoleNodeInfo;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DataNodeInfo;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DetailsNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.user.User;
 import com.escapedoom.auth.data.dataclasses.repositories.EscaperoomRepository;
 import com.escapedoom.auth.data.dataclasses.repositories.LobbyRepository;
+import com.escapedoom.auth.data.dataclasses.repositories.TestRepo;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -27,19 +39,75 @@ public class EscaperoomService {
 
     private final LobbyRepository lobbyRepository;
 
+    private final TestRepo repo;
+
     private User getUser() {
-         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    public void createADummyRoom() {
+    @Transactional
+    public EscapeRoomDto createADummyRoom() {
         var user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Scenes> m = List.of(
+                Scenes.builder()
+                        .name("startScene")
+                        .bgImg("https://www.noen.at/image/1920x1080-c-jpg/2282568/OPIC_007_%28C%29%20FH%20Campus%20Wien-David%20Bohmann%20%28Large%29.jpg")
+                        .nodes(List.of(
+                                Node.builder()
+                                        .type(NodeType.Console)
+                                        .pos(Position.builder()
+                                                .x(250)
+                                                .y(125)
+                                                .build())
+                                        .nodeInfos(ConsoleNodeInfo.builder()
+                                                .outputID(12L)
+                                                .codeSnipped("System.out.println(\"Hello World\")")
+                                                .desc("I can only try one combination at a time. Find the correct one!")
+                                                .png("png.url")
+                                                .title("INPUT")
+                                                .build())
+                                        .build(),
+                                Node.builder()
+                                        .type(NodeType.Details)
+                                        .pos(Position.builder()
+                                                .x(250)
+                                                .y(125)
+                                                .build()
+                                        )
+                                        .nodeInfos(DetailsNodeInfo.builder()
+                                                .desc("This is a details node :D")
+                                                .png("lol.png")
+                                                .title("oWo")
+                                                .build())
+                                        .build())
+                        ).build()
+        );
         Escaperoom dummy =
                 Escaperoom.builder().user((User) user).
                         name("Catch me")
                         .topic("Yee")
                         .time(90)
                         .build();
+
+        var m2 = List.of(
+                EscapeRoomStage.builder()
+                        .escaperoom(dummy)
+                        .stage(m)
+                        .build()
+
+
+        );
+
+
+        dummy.setEscapeRoomStages(m2);
         escaperoomRepository.save(dummy);
+        return EscapeRoomDto.builder()
+                .escaperoom_id(dummy.getEscaperoom_id())
+                .name(dummy.getName())
+                .topic(dummy.getTopic())
+                .time(dummy.getTime())
+                .escapeRoomStages(dummy.getEscapeRoomStages())
+                .build();
     }
 
     public List<EscaperoomDTO> getAllRoomsByAnUser() {
@@ -98,7 +166,7 @@ public class EscaperoomService {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("http://localhost:8090/info/started/"+id)
+                .url("http://localhost:8090/info/started/" + id)
                 .build(); // defaults to GET
         try {
             Response response = client.newCall(request).execute();
@@ -106,6 +174,17 @@ public class EscaperoomService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static SessionFactory getCurrentSessionFromJPA() {
+        // JPA and Hibernate SessionFactory example
+        EntityManagerFactory emf =
+                Persistence.createEntityManagerFactory("entityManager");
+        EntityManager entityManager = emf.createEntityManager();
+        // Get the Hibernate Session from the EntityManager in JPA
+        Session session = entityManager.unwrap(org.hibernate.Session.class);
+        SessionFactory factory = session.getSessionFactory();
+        return factory;
     }
 
 }

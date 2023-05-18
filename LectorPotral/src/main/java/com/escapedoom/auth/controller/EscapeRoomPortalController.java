@@ -2,6 +2,8 @@ package com.escapedoom.auth.controller;
 
 import com.escapedoom.auth.Service.EscaperoomService;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.EscapeRoomDto;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,8 @@ public class EscapeRoomPortalController {
     }
 
     @PostMapping("/saveEscaperoom")
-    ResponseEntity<String> saveEscapeRoom() {
-        escaperoomService.createADummyRoom();
-        return ResponseEntity.ok("here would be the escape rooms");
+    EscapeRoomDto saveEscapeRoom() {
+        return  escaperoomService.createADummyRoom();
     }
 
     @CrossOrigin

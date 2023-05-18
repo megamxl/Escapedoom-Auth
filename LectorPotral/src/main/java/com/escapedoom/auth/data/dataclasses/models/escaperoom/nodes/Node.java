@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Node {
 
-    //private NodeType type;
+    private NodeType type;
 
     private Position pos;
 

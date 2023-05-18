@@ -1,12 +1,14 @@
 package com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -17,13 +19,17 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-public class EscapeRoomDTO {
+public class EscapeRoomStage {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String staringTime;
+    @JsonIgnore
+    @ManyToOne( cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "escapeRoomID")
+    private Escaperoom escaperoom;
 
     @JdbcTypeCode(SqlTypes.JSON)
     private List<Scenes> stage;
