@@ -34,4 +34,11 @@ public class EscapeRoomStage {
     @JdbcTypeCode(SqlTypes.JSON)
     private List<Scenes> stage;
 
+    @Override
+    public String toString() {
+        return "EscapeRoomStage{" +
+                "id=" + id +
+                ", stage=" + stage +
+                '}';
+    }
 }
