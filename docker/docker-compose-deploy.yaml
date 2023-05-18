@@ -1,0 +1,89 @@
+version: '3.8'
+services:
+  gamesession:
+    image: escapedoom-backend/gamesession:1
+    build:
+      context: .
+    container_name: gamesession
+    depends_on:
+        - db
+        - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/LectorPortal
+      - SPRING_DATA_REDIS_HOST=redis
+    ports:
+      - 8090:8090
+#    networks:
+#      mynetwork:
+#        aliases:
+#          - gamesession
+  lectorportal:
+    image: escapedoom-backend/lectorportal:1
+    build:
+      context: .
+    container_name: lectorportal
+    depends_on:
+        - db
+        - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/LectorPortal
+    ports:
+      - 8080:8080
+#    networks:
+#      mynetwork:
+#        aliases:
+#          - lectorportal
+  website:
+    image: escapedoom-frontend/website:1
+    build:
+      context: .
+    container_name: website
+    depends_on:
+        - db
+        - redis
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/LectorPortal
+    ports: #TODO nur mehr 8080 exposen und genau über den soll die ganze Funktionalität verfügbar sein
+      - 80:80
+#    networks:
+#      mynetwork:
+#        aliases:
+#          - website
+  redis:
+    image: redis
+    container_name: redis
+#    restart: always #wenn docker container failed, wird restartet
+    ports:
+      - 6379:6379
+    command: redis-server --save 60 1 --loglevel warning #save 1 or more writes every 20 seconds to disk
+    volumes:
+      - redis_data:/data #named volume, speichert Redis-Daten auf dem host system.
+#    networks:
+#      mynetwork: #fronted?
+#        aliases:
+#          - redis
+  db:
+    image: postgres
+    container_name: postgres
+#    restart: always #wenn docker container failed, wird restartet
+    environment:
+      POSTGRES_USER: myuser           #optional damit auch user+password vorhanden
+      POSTGRES_PASSWORD: mypassword   #required
+      POSTGRES_DB: LectorPortal       #optional fr default database
+    ports:
+      - 5432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+#    networks:
+#      mynetwork: #backend?
+#        aliases:
+#          - postgres
+
+#networks:
+#  mynetwork:
+
+volumes:
+  redis_data:
+    driver: local #the actual storage path is created by docker itself -> to create it on a local file system
+  db_data:
+    driver: local
