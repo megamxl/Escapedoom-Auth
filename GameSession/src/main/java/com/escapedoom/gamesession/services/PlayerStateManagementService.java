@@ -6,6 +6,7 @@ import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
+import com.escapedoom.gamesession.repositories.TestRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class PlayerStateManagementService {
     private final SessionManagementRepository sessionManagementRepository;
 
     private final OpenLobbyRepository openLobbyRepository;
+
+    private final TestRepo repo;
 
     private final String ALL_NAME_EVENT = "allNames";
     private final String YOUR_NAME_EVENT = "yourName";
@@ -109,8 +112,10 @@ public class PlayerStateManagementService {
         } else {
             player = Player.builder()
                     .name(getRandomName())
+                    .escampeRoom_room_id(lobby.getEscaperoom_escaperoom_id())
                     .httpSessionID(httpSessionID)
                     .escaperoomSession(escaperoomSession)
+                    .escaperoomStageId(1L)
                     .build();
             sessionManagementRepository.save(player);
             //TODO return the last saved state
@@ -230,6 +235,15 @@ public class PlayerStateManagementService {
 
         }
 
+    }
+    public ArrayList<Object> returnStageToPlayer(String httpSession) {
+
+        var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
+        if (curr.isPresent()) {
+            return repo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
+        } else {
+            return null;
+        }
     }
 
 

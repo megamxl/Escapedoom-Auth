@@ -27,4 +27,8 @@ public class Player {
 
     private Long escaperoomSession;
 
+    private Long escaperoomStageId;
+
+    private Long escampeRoom_room_id;
+
 }

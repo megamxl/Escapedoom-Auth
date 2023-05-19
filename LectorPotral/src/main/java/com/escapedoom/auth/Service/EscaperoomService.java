@@ -83,21 +83,24 @@ public class EscaperoomService {
                         ).build()
         );
         Escaperoom dummy =
-                Escaperoom.builder().user((User) user).
-                        name("Catch me")
+                Escaperoom.builder().user((User) user)
+                        .name("Catch me")
                         .topic("Yee")
                         .time(90)
                         .build();
 
         var m2 = List.of(
                 EscapeRoomStage.builder()
+                        .stageId(1L)
+                        .escaperoom(dummy)
+                        .stage(m)
+                        .build(),
+                EscapeRoomStage.builder()
+                        .stageId(2L)
                         .escaperoom(dummy)
                         .stage(m)
                         .build()
-
-
         );
-
 
         dummy.setEscapeRoomStages(m2);
         escaperoomRepository.save(dummy);

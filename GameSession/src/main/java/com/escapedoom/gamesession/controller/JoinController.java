@@ -9,8 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @CrossOrigin
@@ -39,6 +40,10 @@ public class JoinController {
         return playerStateManagementService.lobbyConnection(session);
     }
 
+    @GetMapping(value = "getStage/{httpSession}")
+    public ArrayList<Object> currentStage(@PathVariable String httpSession) {
+        return playerStateManagementService.returnStageToPlayer(httpSession);
+    }
 
     // method to dispatch data to the rigth lobbys
 
