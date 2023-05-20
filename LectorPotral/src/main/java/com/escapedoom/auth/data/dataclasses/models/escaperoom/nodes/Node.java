@@ -16,6 +16,6 @@ public class Node {
 
     private Position pos;
 
-    private NodeInfoAbstract nodeInfos;
+    private Object nodeInfos;
 
 }
