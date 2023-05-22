@@ -59,4 +59,9 @@ public class JoinController {
         return playerStateManagementService.getAllPlayersByEscapeRoomID(escaperoom_id);
     }
 
+    @PostMapping(value = "submitCode/{httpSession}")
+    public void submitCode(@PathVariable String httpSession) {
+         playerStateManagementService.startCompiling(httpSession);
+    }
+
 }

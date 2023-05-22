@@ -2,6 +2,7 @@ package com.escapedoom.gamesession.repositories;
 
 import com.escapedoom.gamesession.data.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,5 +14,11 @@ public interface SessionManagementRepository extends JpaRepository<Player, Long>
     void deleteAllByEscaperoomSession(Long escaperoomSession);
 
     Optional<List<Player>> findAllByEscaperoomSession(Long escaperoomSession);
+
+    @Query(value =
+            "select stage " +
+                    "from  escape_room_stage where id = 1"
+            , nativeQuery = true)
+    List<String> findEescapeRoomStage();
 
 }

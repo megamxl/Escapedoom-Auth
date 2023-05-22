@@ -1,22 +1,29 @@
 package com.escapedoom.gamesession.services;
 
 import com.escapedoom.gamesession.SseEmitterExtended;
+import com.escapedoom.gamesession.configuration.redis.KafkaConfigProperties;
 import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
+import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
+import com.escapedoom.gamesession.data.codeCompiling.CodingLanguage;
 import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import com.escapedoom.gamesession.repositories.TestRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -31,6 +38,13 @@ public class PlayerStateManagementService {
     private final OpenLobbyRepository openLobbyRepository;
 
     private final TestRepo repo;
+
+    private final KafkaTemplate<String,String> kafkaTemplate;
+
+    private final KafkaConfigProperties kafkaConfigProperties;
+
+    private final ObjectMapper myJsonSlave;
+
 
     private final String ALL_NAME_EVENT = "allNames";
     private final String YOUR_NAME_EVENT = "yourName";
@@ -244,6 +258,24 @@ public class PlayerStateManagementService {
         } else {
             return null;
         }
+    }
+
+    public void startCompiling(String sessionId) {
+       final CodeCompilingRequestEvent codeCompilingRequestEvent=  CodeCompilingRequestEvent.builder()
+                .playerSessionId(sessionId)
+                .dateTime(LocalDateTime.now())
+                .language(CodingLanguage.Java)
+                .code("WOW")
+                .build();
+        String requestAsJsoString = null;
+
+        try {
+            requestAsJsoString = myJsonSlave.writeValueAsString(codeCompilingRequestEvent);
+        } catch (JsonProcessingException e) {
+            return;
+        }
+        kafkaTemplate.send(kafkaConfigProperties.getCodeCompilerTopic(), requestAsJsoString);
+
     }
 
 

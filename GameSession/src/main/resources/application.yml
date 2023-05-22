@@ -35,3 +35,6 @@ spring:
       username:
 server:
   port: 8090
+escapedoom:
+  codecompiler:
+    code-compiler-topic: codeCompiler
