@@ -16,7 +16,7 @@ spring:
       maximumPoolSize: 50
       idleTimeout: 1200
       connectionTimeout: 3000
-      leakDetectionThreshold: 3000
+      leakDetectionThreshold: 10000
   jpa:
     hibernate:
       ddl-auto: create-drop

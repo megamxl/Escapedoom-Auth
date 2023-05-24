@@ -244,8 +244,13 @@ public class PlayerStateManagementService {
             Optional<List<Player>> allByEscaperoomSession = sessionManagementRepository.findAllByEscaperoomSession(id);
             if (allByEscaperoomSession.isPresent()) {
 
-                inforAllPlayersAboutPlayers(allByEscaperoomSession.get().get(0),true);
-                System.out.println("informing clients");
+                // Added this since a partial restart of the system caused no new players to join :(
+                if (allByEscaperoomSession.get().size() != 0) {
+                    inforAllPlayersAboutPlayers(allByEscaperoomSession.get().get(0),true);
+                    System.out.println("informing clients");
+                } else {
+                    System.out.println("No player found!");
+                }
             }
 
         }

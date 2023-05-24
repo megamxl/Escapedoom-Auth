@@ -15,6 +15,10 @@ public class ConsoleNodeInfo extends NodeInfoAbstract {
 
     private String desc;
 
+    private String returnType;
+
+    private String exampleInput;
+
     private String png;
 
     private String title;

@@ -7,6 +7,7 @@ import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.*;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ConsoleNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DataNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DetailsNodeInfo;
+import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ZoomNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.user.User;
 import com.escapedoom.auth.data.dataclasses.repositories.EscaperoomRepository;
 import com.escapedoom.auth.data.dataclasses.repositories.LobbyRepository;
@@ -63,6 +64,8 @@ public class EscaperoomService {
                                                 .outputID(12L)
                                                 .codeSnipped("System.out.println(\"Hello World\")")
                                                 .desc("I can only try one combination at a time. Find the correct one!")
+                                                .returnType("4 digit integer")
+                                                .exampleInput("1234")
                                                 .png("png.url")
                                                 .title("INPUT")
                                                 .build())
@@ -75,11 +78,28 @@ public class EscaperoomService {
                                                 .build()
                                         )
                                         .nodeInfos(DetailsNodeInfo.builder()
-                                                .desc("This is a details node :D")
-                                                .png("lol.png")
-                                                .title("oWo")
+                                                .desc("This item is really strange, I wonder if it still works...")
+                                                .png("https://media.istockphoto.com/id/145132637/de/foto/alte-telefon.jpg?s=612x612&w=0&k=20&c=vKbE1neCPbp1AAdNZuW042vAxt7liMV52tEIAsHNjqs=")
+                                                .title("An old Phone")
                                                 .build())
-                                        .build())
+                                        .build(),
+                                Node.builder()
+                                        .type(NodeType.Data)
+                                        .pos(Position.builder().x(250).y(125).build()
+                                        )
+                                        .nodeInfos(DataNodeInfo.builder()
+                                                .title("Object output")
+                                                .desc("Some story like object description")
+                                                .parameterType("A string containing the letters")
+                                                .exampleOutput("ASDFGAIKVNAKSDNFJIVNHAEKW").build())
+                                        .build(),
+                                Node.builder()
+                                        .type(NodeType.Zoom)
+                                        .pos(Position.builder().x(250).y(125).build()
+                                        )
+                                        .nodeInfos(ZoomNodeInfo.builder().build())
+                                        .build()
+                                )
                         ).build()
         );
         Escaperoom dummy =
