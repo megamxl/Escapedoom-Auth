@@ -2,6 +2,7 @@ package com.escapedoom.gamesession.controller;
 
 import com.escapedoom.gamesession.SseEmitterExtended;
 import com.escapedoom.gamesession.data.Player;
+import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
 import com.escapedoom.gamesession.data.response.JoinResponse;
 import com.escapedoom.gamesession.services.PlayerStateManagementService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,9 +60,9 @@ public class JoinController {
         return playerStateManagementService.getAllPlayersByEscapeRoomID(escaperoom_id);
     }
 
-    @PostMapping(value = "submitCode/{httpSession}")
-    public void submitCode(@PathVariable String httpSession) {
-         playerStateManagementService.startCompiling(httpSession);
+    @PostMapping(value = "submitCode/")
+    public void submitCode(@RequestBody CodeCompilingRequestEvent codeCompilingRequestEvent) {
+         playerStateManagementService.startCompiling(codeCompilingRequestEvent);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.escapedoom.gamesession.services;
 
+import com.escapedoom.gamesession.CodeSniptes;
 import com.escapedoom.gamesession.SseEmitterExtended;
 import com.escapedoom.gamesession.configuration.redis.KafkaConfigProperties;
 import com.escapedoom.gamesession.data.EscapeRoomState;
@@ -260,14 +261,30 @@ public class PlayerStateManagementService {
         }
     }
 
-    public void startCompiling(String sessionId) {
-       final CodeCompilingRequestEvent codeCompilingRequestEvent=  CodeCompilingRequestEvent.builder()
-                .playerSessionId(sessionId)
+    public void startCompiling(CodeCompilingRequestEvent codeCompilingRequestEvent) {
+       /*final CodeCompilingRequestEvent codeCompilingRequestEvent=  CodeCompilingRequestEvent.builder()
+                .playerSessionId(sessionId.toLowerCase())
                 .dateTime(LocalDateTime.now())
                 .language(CodingLanguage.Java)
-                .code("WOW")
+                .code(
+                        "import java.util.ArrayList;\n" +
+                                "import java.util.List;\n" +
+                                "import java.util.Random;\n" +
+                                "import java.util.concurrent.atomic.LongAdder;\n" +
+                                "\n" +
+                                "public class app {\n" +
+                                "    public static void main(String[] args) {\n" +
+                                "        System.out.println(\"Hello Thommy\");\n" +
+                                "        System.out.println(35+25);\n" +
+                                "    }\n" +
+                                "}"
+                )
                 .build();
+                */
         String requestAsJsoString = null;
+
+        codeCompilingRequestEvent.setDateTime(LocalDateTime.now());
+        codeCompilingRequestEvent.setCode(CodeSniptes.javaClassGenerator(codeCompilingRequestEvent.getCode()));
 
         try {
             requestAsJsoString = myJsonSlave.writeValueAsString(codeCompilingRequestEvent);
