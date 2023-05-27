@@ -319,6 +319,7 @@ public class PlayerStateManagementService {
                 compilingProcessRepository.delete(compilingProcessRepositoryById.get());
                 return compilingProcessRepositoryById.get().getOutput();
             } else {
+                return "waiting";
                 //TODO tell the user Code still comp
             }
         } else {
