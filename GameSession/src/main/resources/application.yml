@@ -1,4 +1,8 @@
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: computedCode
   mvc:
     async:
       request-timeout: -1

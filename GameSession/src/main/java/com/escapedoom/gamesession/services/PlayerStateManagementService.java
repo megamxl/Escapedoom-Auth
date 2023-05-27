@@ -1,13 +1,15 @@
 package com.escapedoom.gamesession.services;
 
-import com.escapedoom.gamesession.CodeSniptes;
-import com.escapedoom.gamesession.SseEmitterExtended;
+import com.escapedoom.gamesession.data.codeCompiling.CompilingStatus;
+import com.escapedoom.gamesession.data.codeCompiling.ProcessingRequest;
+import com.escapedoom.gamesession.repositories.CompilingProcessRepository;
+import com.escapedoom.gamesession.utils.CodeSniptes;
+import com.escapedoom.gamesession.utils.SseEmitterExtended;
 import com.escapedoom.gamesession.configuration.redis.KafkaConfigProperties;
 import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
-import com.escapedoom.gamesession.data.codeCompiling.CodingLanguage;
 import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
 import com.escapedoom.gamesession.repositories.SessionManagementRepository;
 import com.escapedoom.gamesession.repositories.TestRepo;
@@ -16,17 +18,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.json.JSONObject;
-import org.springframework.http.MediaType;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +48,7 @@ public class PlayerStateManagementService {
 
     private final ObjectMapper myJsonSlave;
 
+    private final CompilingProcessRepository compilingProcessRepository;
 
     private final String ALL_NAME_EVENT = "allNames";
     private final String YOUR_NAME_EVENT = "yourName";
@@ -267,25 +270,10 @@ public class PlayerStateManagementService {
     }
 
     public void startCompiling(CodeCompilingRequestEvent codeCompilingRequestEvent) {
-       /*final CodeCompilingRequestEvent codeCompilingRequestEvent=  CodeCompilingRequestEvent.builder()
-                .playerSessionId(sessionId.toLowerCase())
-                .dateTime(LocalDateTime.now())
-                .language(CodingLanguage.Java)
-                .code(
-                        "import java.util.ArrayList;\n" +
-                                "import java.util.List;\n" +
-                                "import java.util.Random;\n" +
-                                "import java.util.concurrent.atomic.LongAdder;\n" +
-                                "\n" +
-                                "public class app {\n" +
-                                "    public static void main(String[] args) {\n" +
-                                "        System.out.println(\"Hello Thommy\");\n" +
-                                "        System.out.println(35+25);\n" +
-                                "    }\n" +
-                                "}"
-                )
-                .build();
-                */
+        if (compilingProcessRepository.findById(codeCompilingRequestEvent.getPlayerSessionId()).isPresent()) {
+            return;
+        }
+
         String requestAsJsoString = null;
 
         codeCompilingRequestEvent.setDateTime(LocalDateTime.now());
@@ -298,7 +286,44 @@ public class PlayerStateManagementService {
         }
         kafkaTemplate.send(kafkaConfigProperties.getCodeCompilerTopic(), requestAsJsoString);
 
+        compilingProcessRepository.save(ProcessingRequest.builder()
+                .userID(codeCompilingRequestEvent.getPlayerSessionId())
+                .compilingStatus(CompilingStatus.Submitted)
+                .build());
     }
 
 
+    @KafkaListener(topics = "computedCode")
+    @Transactional
+    public void recivingKafkaMessges(final ConsumerRecord<String, String> message) {
+        System.out.print(message.key());
+        var process = compilingProcessRepository.findById(message.key());
+        if (process.isPresent()) {
+            ProcessingRequest processingRequest = process.get();
+            processingRequest.setOutput(message.value().replace("\n", ""));
+            processingRequest.setCompilingStatus(CompilingStatus.Done);
+            compilingProcessRepository.save(processingRequest);
+        } else {
+            log.atError().log("Should have not received This message {}" , message);
+        }
+    }
+
+    public String getResult(String playerID) {
+        // check if there is a dataset in the database for that name
+        Optional<ProcessingRequest> compilingProcessRepositoryById = compilingProcessRepository.findById(playerID);
+        if (compilingProcessRepositoryById.isPresent()) {
+            if (compilingProcessRepositoryById.get().getCompilingStatus() == CompilingStatus.Done) {
+                //checker with the input he is  on
+                System.out.println(compilingProcessRepositoryById.get());
+                //TODO CHECK OUTPUT WITH current riddle Input
+                compilingProcessRepository.delete(compilingProcessRepositoryById.get());
+                return compilingProcessRepositoryById.get().getOutput();
+            } else {
+                //TODO tell the user Code still comp
+            }
+        } else {
+            //TODO tell the user nothing submitted
+        }
+        return null;
+    }
 }

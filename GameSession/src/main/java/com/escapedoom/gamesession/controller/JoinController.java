@@ -1,6 +1,6 @@
 package com.escapedoom.gamesession.controller;
 
-import com.escapedoom.gamesession.SseEmitterExtended;
+import com.escapedoom.gamesession.utils.SseEmitterExtended;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
 import com.escapedoom.gamesession.data.response.JoinResponse;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @CrossOrigin
@@ -60,9 +59,14 @@ public class JoinController {
         return playerStateManagementService.getAllPlayersByEscapeRoomID(escaperoom_id);
     }
 
-    @PostMapping(value = "submitCode/")
+    @PostMapping(value = "submitCode")
     public void submitCode(@RequestBody CodeCompilingRequestEvent codeCompilingRequestEvent) {
          playerStateManagementService.startCompiling(codeCompilingRequestEvent);
+    }
+
+    @GetMapping(value = "getCode/{playerID}")
+    public void submitCode(@PathVariable String playerID) {
+        playerStateManagementService.getResult(playerID);
     }
 
 }

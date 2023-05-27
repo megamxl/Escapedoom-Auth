@@ -1,4 +1,4 @@
-package com.escapedoom.gamesession;
+package com.escapedoom.gamesession.utils;
 
 
 
