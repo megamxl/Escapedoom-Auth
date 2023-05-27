@@ -17,6 +17,8 @@ public class CodeCompilingRequestEvent {
 
     private CodingLanguage language;
 
+    private long codeRiddleID;
+
     private String code;
 
     private LocalDateTime dateTime;

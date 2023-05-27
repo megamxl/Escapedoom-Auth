@@ -27,6 +27,8 @@ public class EscapeRoomStage {
 
     private Long stageId;
 
+    private Long outputID;
+
     @JsonIgnore
     @ManyToOne( cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)

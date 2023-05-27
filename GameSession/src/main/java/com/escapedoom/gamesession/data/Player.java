@@ -31,4 +31,6 @@ public class Player {
 
     private Long escampeRoom_room_id;
 
+    private Long score;
+
 }

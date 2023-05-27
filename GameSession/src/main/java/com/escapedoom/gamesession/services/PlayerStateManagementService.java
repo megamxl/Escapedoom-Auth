@@ -1,8 +1,10 @@
 package com.escapedoom.gamesession.services;
 
+import com.escapedoom.gamesession.data.EscapeRoomDao;
 import com.escapedoom.gamesession.data.codeCompiling.CompilingStatus;
+import com.escapedoom.gamesession.data.codeCompiling.ConsoleNodeCode;
 import com.escapedoom.gamesession.data.codeCompiling.ProcessingRequest;
-import com.escapedoom.gamesession.repositories.CompilingProcessRepository;
+import com.escapedoom.gamesession.repositories.*;
 import com.escapedoom.gamesession.utils.CodeSniptes;
 import com.escapedoom.gamesession.utils.SseEmitterExtended;
 import com.escapedoom.gamesession.configuration.redis.KafkaConfigProperties;
@@ -10,9 +12,6 @@ import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
-import com.escapedoom.gamesession.repositories.OpenLobbyRepository;
-import com.escapedoom.gamesession.repositories.SessionManagementRepository;
-import com.escapedoom.gamesession.repositories.TestRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -28,7 +27,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +38,7 @@ public class PlayerStateManagementService {
 
     private final OpenLobbyRepository openLobbyRepository;
 
-    private final TestRepo repo;
+    private final EscapeRoomRepo escapeRoomRepo;
 
     private final KafkaTemplate<String,String> kafkaTemplate;
 
@@ -49,6 +47,8 @@ public class PlayerStateManagementService {
     private final ObjectMapper myJsonSlave;
 
     private final CompilingProcessRepository compilingProcessRepository;
+
+    private final CodeRiddleRepository codeRiddleRepository;
 
     private final String ALL_NAME_EVENT = "allNames";
     private final String YOUR_NAME_EVENT = "yourName";
@@ -261,9 +261,9 @@ public class PlayerStateManagementService {
     }
     public ArrayList<Object> returnStageToPlayer(String httpSession) {
 
-        var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
+         var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
         if (curr.isPresent()) {
-            return repo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
+            return escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
         } else {
             return null;
         }
@@ -276,8 +276,21 @@ public class PlayerStateManagementService {
 
         String requestAsJsoString = null;
 
-        codeCompilingRequestEvent.setDateTime(LocalDateTime.now());
-        codeCompilingRequestEvent.setCode(CodeSniptes.javaClassGenerator(codeCompilingRequestEvent.getCode()));
+        Optional<Player> playerByHttpSessionID = sessionManagementRepository.findPlayerByHttpSessionID(codeCompilingRequestEvent.getPlayerSessionId());
+        if (playerByHttpSessionID.isPresent()) {
+            Optional<EscapeRoomDao> escapeRoomDaoByStageIdAndRoomId = escapeRoomRepo.findEscapeRoomDaoByStageIdAndRoomId(playerByHttpSessionID.get().getEscaperoomStageId(), playerByHttpSessionID.get().getEscampeRoom_room_id());
+            if (escapeRoomDaoByStageIdAndRoomId.isPresent()) {
+                Optional<ConsoleNodeCode> byId = codeRiddleRepository.findById(escapeRoomDaoByStageIdAndRoomId.get().getOutputID());
+                if (byId.isPresent()) {
+                    codeCompilingRequestEvent.setDateTime(LocalDateTime.now());
+                    codeCompilingRequestEvent.setCode(CodeSniptes.javaClassGenerator(byId.get().getInput(), byId.get().getVariableName() ,codeCompilingRequestEvent.getCode()));
+                }
+            }
+        }
+        if (codeCompilingRequestEvent.getDateTime() == null) {
+            return;
+        }
+
 
         try {
             requestAsJsoString = myJsonSlave.writeValueAsString(codeCompilingRequestEvent);
