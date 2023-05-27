@@ -4,8 +4,6 @@ spring:
     username: myuser
     password: mypassword
     driver-class-name: org.postgresql.Driver
-    hikari:
-      leak-detection-threshold: 60000
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -18,3 +16,5 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+gamesesion:
+  url: http://localhost:8090
