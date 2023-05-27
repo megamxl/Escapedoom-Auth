@@ -65,8 +65,8 @@ public class JoinController {
     }
 
     @GetMapping(value = "getCode/{playerID}")
-    public void submitCode(@PathVariable String playerID) {
-        playerStateManagementService.getResult(playerID);
+    public String submitCode(@PathVariable String playerID) {
+        return playerStateManagementService.getResult(playerID);
     }
 
 }
