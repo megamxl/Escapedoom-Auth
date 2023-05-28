@@ -261,7 +261,7 @@ public class PlayerStateManagementService {
     }
     public ArrayList<Object> returnStageToPlayer(String httpSession) {
 
-         var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
+        var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
         if (curr.isPresent()) {
             return escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
         } else {
@@ -276,6 +276,8 @@ public class PlayerStateManagementService {
 
         String requestAsJsoString = null;
 
+        //TODO LIMIT TEST
+        //TODO RETURN ERRRORS TAHAT FRONTEND UNDERSTANDS
         Optional<Player> playerByHttpSessionID = sessionManagementRepository.findPlayerByHttpSessionID(codeCompilingRequestEvent.getPlayerSessionId());
         if (playerByHttpSessionID.isPresent()) {
             Optional<EscapeRoomDao> escapeRoomDaoByStageIdAndRoomId = escapeRoomRepo.findEscapeRoomDaoByStageIdAndRoomId(playerByHttpSessionID.get().getEscaperoomStageId(), playerByHttpSessionID.get().getEscampeRoom_room_id());
@@ -327,9 +329,26 @@ public class PlayerStateManagementService {
         if (compilingProcessRepositoryById.isPresent()) {
             if (compilingProcessRepositoryById.get().getCompilingStatus() == CompilingStatus.Done) {
                 //checker with the input he is  on
-                System.out.println(compilingProcessRepositoryById.get());
-                //TODO CHECK OUTPUT WITH current riddle Input
                 compilingProcessRepository.delete(compilingProcessRepositoryById.get());
+                Optional<Player> playerByHttpSessionID = sessionManagementRepository.findPlayerByHttpSessionID(playerID);
+                if (playerByHttpSessionID.isPresent()) {
+                    Optional<EscapeRoomDao> escapeRoomDaoByStageIdAndRoomId = escapeRoomRepo.findEscapeRoomDaoByStageIdAndRoomId(playerByHttpSessionID.get().getEscaperoomStageId(), playerByHttpSessionID.get().getEscampeRoom_room_id());
+                    if (escapeRoomDaoByStageIdAndRoomId.isPresent()) {
+                        Optional<ConsoleNodeCode> byId = codeRiddleRepository.findById(escapeRoomDaoByStageIdAndRoomId.get().getOutputID());
+                        if (byId.isPresent()) {
+                            if (compilingProcessRepositoryById.get().getOutput().equals(byId.get().getExpectedOutput())) {
+                                Long maxStage = escapeRoomRepo.getMaxStage(playerByHttpSessionID.get().getEscampeRoom_room_id());
+                                if (playerByHttpSessionID.get().getEscaperoomStageId() + 1 < maxStage) {
+                                    Player player = playerByHttpSessionID.get();
+                                    player.setEscaperoomStageId(playerByHttpSessionID.get().getEscaperoomStageId() +1 );
+                                    sessionManagementRepository.save(player);
+                                    return "Success \n" + compilingProcessRepositoryById.get().getOutput();
+                                }
+                                return "You Won !!";
+                            }
+                        }
+                    }
+                }
                 return compilingProcessRepositoryById.get().getOutput();
             } else {
                 return "waiting";

@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -110,7 +111,7 @@ public class EscaperoomService {
                 Escaperoom.builder().user((User) user)
                         .name("Catch me")
                         .topic("Yee")
-                        .time(90)
+                        .time(90L)
                         .build();
 
         var m2 = List.of(
@@ -202,12 +203,70 @@ public class EscaperoomService {
                                 )
                         ).build()
         );
+
+
+        List<Scenes> m3 = List.of(
+                Scenes.builder()
+                        .name("secondScene")
+                        .bgImg("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsZSaFZ-nKGSkIEane9_ucnaElVrGkxLlOyQ&usqp=CAU")
+                        .nodes(List.of(
+                                        Node.builder()
+                                                .type(NodeType.Console)
+                                                .pos(Position.builder()
+                                                        .x(250)
+                                                        .y(125)
+                                                        .build())
+                                                .nodeInfos(ConsoleNodeInfo.builder()
+                                                        .outputID(save.getId())
+                                                        .codeSnipped(save.getFunctionSignature())
+                                                        .desc("I can only try one combination at a time. Find the correct one!")
+                                                        .returnType("4 digit integer")
+                                                        .exampleInput(save.getInput())
+                                                        .png("png.url")
+                                                        .title("INPUT")
+                                                        .build())
+                                                .build(),
+                                        Node.builder()
+                                                .type(NodeType.Details)
+                                                .pos(Position.builder()
+                                                        .x(250)
+                                                        .y(125)
+                                                        .build()
+                                                )
+                                                .nodeInfos(DetailsNodeInfo.builder()
+                                                        .desc("This item is really strange, I wonder if it still works...")
+                                                        .png("https://media.istockphoto.com/id/145132637/de/foto/alte-telefon.jpg?s=612x612&w=0&k=20&c=vKbE1neCPbp1AAdNZuW042vAxt7liMV52tEIAsHNjqs=")
+                                                        .title("An old Phone")
+                                                        .build())
+                                                .build(),
+                                        Node.builder()
+                                                .type(NodeType.Data)
+                                                .pos(Position.builder().x(250).y(125).build()
+                                                )
+                                                .nodeInfos(DataNodeInfo.builder()
+                                                        .title("Object output")
+                                                        .desc("Some story like object description")
+                                                        .parameterType("A string containing the letters")
+                                                        .exampleOutput("ASDFGAIKVNAKSDNFJIVNHAEKW").build())
+                                                .build(),
+                                        Node.builder()
+                                                .type(NodeType.Zoom)
+                                                .pos(Position.builder().x(250).y(125).build()
+                                                )
+                                                .nodeInfos(ZoomNodeInfo.builder().build())
+                                                .build()
+                                )
+                        ).build()
+        );
+
         Escaperoom dummy =
                 Escaperoom.builder().user((User) user)
                         .name("Catch me")
                         .topic("Yee")
-                        .time(90)
+                        .escapeRoomStages(Collections.emptyList())
+                        .time(90L)
                         .build();
+
 
         var m2 = List.of(
                 EscapeRoomStage.builder()
@@ -219,12 +278,12 @@ public class EscaperoomService {
                 EscapeRoomStage.builder()
                         .stageId(2L)
                         .escaperoom(dummy)
-                        .stage(m)
+                        .stage(m3)
                         .build()
         );
 
-        dummy.setEscapeRoomStages(m2);
         escaperoomRepository.save(dummy);
+        dummy.setEscapeRoomStages(m2);
         return EscapeRoomDto.builder()
                 .escaperoom_id(dummy.getEscaperoom_id())
                 .name(dummy.getName())

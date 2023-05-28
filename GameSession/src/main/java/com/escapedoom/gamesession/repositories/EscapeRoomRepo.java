@@ -19,4 +19,7 @@ public interface EscapeRoomRepo extends JpaRepository<EscapeRoomDao, Long> {
 
     Optional<EscapeRoomDao> findEscapeRoomDaoByStageIdAndRoomId(Long stageId, Long roomID);
 
+    @Query(value = "SELECT es.max_stage FROM escaperoom es WHERE es.escaperoom_id = ?1", nativeQuery = true)
+    Long getMaxStage(Long escaperoomID);
+
 }
