@@ -112,7 +112,7 @@ public class EscaperoomService {
                 Escaperoom.builder().user((User) user)
                         .name("Catch me")
                         .topic("Yee")
-                        .time(LocalDateTime.now().plusMinutes(3))
+                        .time(90)
                         .build();
 
         var m2 = List.of(
@@ -265,7 +265,7 @@ public class EscaperoomService {
                         .name("Catch me")
                         .topic("Yee")
                         .escapeRoomStages(Collections.emptyList())
-                        .time(LocalDateTime.now())
+                        .time(90)
                         .build();
 
 

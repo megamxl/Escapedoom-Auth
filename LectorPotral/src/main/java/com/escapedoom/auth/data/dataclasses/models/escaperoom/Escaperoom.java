@@ -30,14 +30,14 @@ public class Escaperoom {
 
     private String topic;
 
-    private LocalDateTime time;
+    private Integer time;
 
     @OneToMany(mappedBy = "escaperoom", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<EscapeRoomStage> escapeRoomStages;
 
     private Long maxStage;
 
-    public Escaperoom(Long escaperoom_id, User user, String name, String topic, LocalDateTime time, List<EscapeRoomStage> escapeRoomStages, Long maxStage) {
+    public Escaperoom(Long escaperoom_id, User user, String name, String topic, Integer time, List<EscapeRoomStage> escapeRoomStages, Long maxStage) {
         this.escaperoom_id = escaperoom_id;
         this.user = user;
         this.name = name;
@@ -91,11 +91,11 @@ public class Escaperoom {
         this.topic = topic;
     }
 
-    public LocalDateTime getTime() {
+    public Integer getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(Integer time) {
         this.time = time;
     }
 

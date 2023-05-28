@@ -17,16 +17,14 @@ public class RoomStopperComponent {
 
     private final LobbyRepository lobbyRepository;
 
-    //@Scheduled(fixedRate = 60000)
-    @Scheduled(fixedRate = 6000)
+    //TODO MAKE THE TIMESTAMP INTERESTING
+    @Scheduled(fixedRate = 60000)
     public void HouseKeeper() {
-        System.out.println("in check");
         try {
             Optional<List<OpenLobbys>> allByStatePlaying = lobbyRepository.findAllByStatePlaying();
             if (allByStatePlaying.isPresent()) {
                 for (OpenLobbys openLobbys : allByStatePlaying.get()) {
                     if (LocalDateTime.now().isAfter(openLobbys.getEndTime())) {
-                        System.out.println("checked gets changed");
                         openLobbys.setState(EscapeRoomState.STOPPED);
                         lobbyRepository.save(openLobbys);
                     }

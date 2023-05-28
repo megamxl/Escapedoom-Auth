@@ -118,7 +118,12 @@ public class PlayerStateManagementService {
             player = optplayer.get();
             switch (lobby.getState()) {
                 case JOINABLE -> {
-                    //TODO FIND EMITER WITH ID DELETE AND REPLACE
+                    for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
+                        if (sseEmitterExtended.getHttpID().equals(httpSessionID)) {
+                            sseEmitters.remove(sseEmitterExtended);
+                        }
+                    }
+                    return player.getName();
                 }
                 case PLAYING -> {
                     //RETURN THE CURRENT STATE
@@ -176,6 +181,7 @@ public class PlayerStateManagementService {
         sseEmitter.setName(player.getName());
         sseEmitters.add(sseEmitter);
 
+        //TODO JOINIG ON PLAYING HANDELEN
 
         try {
             sseEmitter.send(SseEmitter.event().name(YOUR_NAME_EVENT).data(sseEmitter.getName()));
@@ -262,15 +268,28 @@ public class PlayerStateManagementService {
 
         var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
         if (curr.isPresent()) {
-            return escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
-        } else {
-            return null;
+            Optional<OpenLobbys> lobbyId = openLobbyRepository.findByLobbyId(curr.get().getEscaperoomSession());
+            if (lobbyId.isPresent()) {
+                if (lobbyId.get().getState() == EscapeRoomState.PLAYING) {
+                    return escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
+                }
+            }
         }
+        return null;
     }
 
     public void startCompiling(CodeCompilingRequestEvent codeCompilingRequestEvent) {
         if (compilingProcessRepository.findById(codeCompilingRequestEvent.getPlayerSessionId()).isPresent()) {
             return;
+        }
+        var curr = sessionManagementRepository.findPlayerByHttpSessionID(codeCompilingRequestEvent.getPlayerSessionId());
+        if (curr.isPresent()) {
+            Optional<OpenLobbys> lobbyId = openLobbyRepository.findByLobbyId(curr.get().getEscaperoomSession());
+            if (lobbyId.isPresent()) {
+                if (lobbyId.get().getState() != EscapeRoomState.PLAYING) {
+                    return;
+                }
+            }
         }
 
         String requestAsJsoString = null;

@@ -19,7 +19,7 @@ public class EscaperoomDTO {
 
     private String topic;
 
-    private LocalDateTime time;
+    private Integer time;
 
     private EscapeRoomState escapeRoomState;
 

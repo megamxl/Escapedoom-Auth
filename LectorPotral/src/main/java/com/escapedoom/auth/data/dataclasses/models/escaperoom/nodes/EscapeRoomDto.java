@@ -18,7 +18,7 @@ public class EscapeRoomDto {
 
     private String topic;
 
-    private LocalDateTime time;
+    private Integer time;
 
     private List<EscapeRoomStage> escapeRoomStages;
 
