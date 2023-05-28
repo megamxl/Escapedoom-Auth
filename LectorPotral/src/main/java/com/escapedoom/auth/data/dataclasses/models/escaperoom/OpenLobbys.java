@@ -31,6 +31,8 @@ public class OpenLobbys {
 
     private LocalDateTime endTime;
 
+    private LocalDateTime startTime;
+
     @Override
     public String toString() {
         return "OpenLobbys{" +

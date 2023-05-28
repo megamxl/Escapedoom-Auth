@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,4 +25,9 @@ public class OpenLobbys {
 
     @Enumerated(EnumType.STRING)
     private EscapeRoomState state;
+
+    private LocalDateTime endTime;
+
+    private LocalDateTime startTime;
+
 }

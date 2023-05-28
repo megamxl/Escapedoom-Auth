@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,5 +34,7 @@ public class Player {
     private Long escampeRoom_room_id;
 
     private Long score;
+
+    private String  lastStageSolved;
 
 }

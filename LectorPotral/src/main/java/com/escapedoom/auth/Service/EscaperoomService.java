@@ -336,6 +336,7 @@ public class EscaperoomService {
             lobbyRepository.save(openLobbys);
             if (escapeRoomState == EscapeRoomState.PLAYING) {
                 openLobbys.setEndTime(LocalDateTime.now().plusMinutes(time));
+                openLobbys.setStartTime(LocalDateTime.now());
                 lobbyRepository.flush();
                 lobbyRepository.save(openLobbys);
                 informSession(openLobbys.getLobby_Id());

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -158,6 +159,7 @@ public class PlayerStateManagementService {
                         .escaperoomSession(escaperoomSession)
                         .escaperoomStageId(1L)
                         .score(0L)
+                        .lastStageSolved(null)
                         .build();
                 sessionManagementRepository.save(player);
                 update = true;
@@ -394,6 +396,11 @@ public class PlayerStateManagementService {
                                     player.setEscaperoomStageId(playerByHttpSessionID.get().getEscaperoomStageId() + 1);
                                     //TODO CHANGE THE ADDED AMOUNT TO THE TIMESTAMP
                                     player.setScore(player.getScore() + 30L);
+                                    Optional<OpenLobbys> byLobbyId = openLobbyRepository.findByLobbyId(player.getEscaperoomSession());
+                                    var second = byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.SECONDS);
+                                    var min = byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.MINUTES);
+                                    var hour = byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.HOURS);
+                                    player.setLastStageSolved(hour+"h " + min +"m " + second + "s");
                                     sessionManagementRepository.save(player);
                                     //solved Stage
                                     return CodeStatus.builder().status(CState.SUCCESS).output(compilingProcessRepositoryById.get().getOutput()).build();
