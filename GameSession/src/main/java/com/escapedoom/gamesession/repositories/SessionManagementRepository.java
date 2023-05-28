@@ -15,10 +15,6 @@ public interface SessionManagementRepository extends JpaRepository<Player, Long>
 
     Optional<List<Player>> findAllByEscaperoomSession(Long escaperoomSession);
 
-    @Query(value =
-            "select stage " +
-                    "from  escape_room_stage where id = 1"
-            , nativeQuery = true)
-    List<String> findEescapeRoomStage();
+    //TODO: SCHMOMI :) WRITE A QUERY THAT GET'S ALL PLayers IN session
 
 }

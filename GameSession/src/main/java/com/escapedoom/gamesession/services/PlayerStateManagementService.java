@@ -341,6 +341,8 @@ public class PlayerStateManagementService {
                                 if (playerByHttpSessionID.get().getEscaperoomStageId() + 1 < maxStage) {
                                     Player player = playerByHttpSessionID.get();
                                     player.setEscaperoomStageId(playerByHttpSessionID.get().getEscaperoomStageId() +1 );
+                                    //TODO CHANGE THE ADDED AMOUNT TO THE TIMESTAMP
+                                    player.setScore(player.getScore() +30);
                                     sessionManagementRepository.save(player);
                                     return "Success \n" + compilingProcessRepositoryById.get().getOutput();
                                 }
@@ -352,7 +354,6 @@ public class PlayerStateManagementService {
                 return compilingProcessRepositoryById.get().getOutput();
             } else {
                 return "waiting";
-                //TODO tell the user Code still comp
             }
         } else {
             //TODO tell the user nothing submitted
