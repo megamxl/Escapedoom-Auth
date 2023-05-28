@@ -1,9 +1,7 @@
 package com.escapedoom.gamesession.services;
 
 import com.escapedoom.gamesession.data.EscapeRoomDao;
-import com.escapedoom.gamesession.data.codeCompiling.CompilingStatus;
-import com.escapedoom.gamesession.data.codeCompiling.ConsoleNodeCode;
-import com.escapedoom.gamesession.data.codeCompiling.ProcessingRequest;
+import com.escapedoom.gamesession.data.codeCompiling.*;
 import com.escapedoom.gamesession.repositories.*;
 import com.escapedoom.gamesession.utils.CodeSniptes;
 import com.escapedoom.gamesession.utils.SseEmitterExtended;
@@ -11,7 +9,6 @@ import com.escapedoom.gamesession.configuration.redis.KafkaConfigProperties;
 import com.escapedoom.gamesession.data.EscapeRoomState;
 import com.escapedoom.gamesession.data.OpenLobbys;
 import com.escapedoom.gamesession.data.Player;
-import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -312,7 +309,6 @@ public class PlayerStateManagementService {
             return;
         }
 
-
         try {
             requestAsJsoString = myJsonSlave.writeValueAsString(codeCompilingRequestEvent);
         } catch (JsonProcessingException e) {
@@ -325,7 +321,6 @@ public class PlayerStateManagementService {
                 .compilingStatus(CompilingStatus.Submitted)
                 .build());
     }
-
 
     @KafkaListener(topics = "computedCode")
     @Transactional
@@ -342,7 +337,7 @@ public class PlayerStateManagementService {
         }
     }
 
-    public String getResult(String playerID) {
+    public CodeStatus getResult(String playerID) {
         // check if there is a dataset in the database for that name
         Optional<ProcessingRequest> compilingProcessRepositoryById = compilingProcessRepository.findById(playerID);
         if (compilingProcessRepositoryById.isPresent()) {
@@ -363,20 +358,28 @@ public class PlayerStateManagementService {
                                     //TODO CHANGE THE ADDED AMOUNT TO THE TIMESTAMP
                                     player.setScore(player.getScore() + 30L);
                                     sessionManagementRepository.save(player);
-                                    return "Success \n" + compilingProcessRepositoryById.get().getOutput();
+                                    //solved Stage
+                                    return CodeStatus.builder().status(CState.SUCCESS).output(compilingProcessRepositoryById.get().getOutput()).build();
+                                } else {
+                                    // won ROOM
+                                    return CodeStatus.builder().status(CState.WON).output(compilingProcessRepositoryById.get().getOutput()).build();
                                 }
-                                return "You Won !!";
+                            } else {
+                                return CodeStatus.builder().status(CState.COMPILED).output(compilingProcessRepositoryById.get().getOutput()).build();
                             }
                         }
+                    } else {
+                        return CodeStatus.builder().status(CState.BADREQUEST).output("").build();
                     }
+                } else {
+                    return CodeStatus.builder().status(CState.BADREQUEST).output("").build();
                 }
-                return compilingProcessRepositoryById.get().getOutput();
+                return null;
             } else {
-                return "waiting";
+                return CodeStatus.builder().status(CState.WAITING).output("").build();
             }
         } else {
-            //TODO tell the user nothing submitted
+            return CodeStatus.builder().status(CState.BADREQUEST).output("").build();
         }
-        return null;
     }
 }

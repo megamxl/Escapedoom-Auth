@@ -1,5 +1,6 @@
 package com.escapedoom.gamesession.controller;
 
+import com.escapedoom.gamesession.data.codeCompiling.CodeStatus;
 import com.escapedoom.gamesession.utils.SseEmitterExtended;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
@@ -65,7 +66,7 @@ public class JoinController {
     }
 
     @GetMapping(value = "getCode/{playerID}")
-    public String submitCode(@PathVariable String playerID) {
+    public CodeStatus submitCode(@PathVariable String playerID) {
         return playerStateManagementService.getResult(playerID);
     }
 
