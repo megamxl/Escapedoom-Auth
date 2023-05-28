@@ -20,7 +20,7 @@ public class LeaderboardController {
     @GetMapping("/{escaperoom_id}")
 
     public List<LeaderboardDao> LeaderboardAsJson(@PathVariable Long escaperoom_id) {
-        return leaderboardService.getScoreBoard();
+        return leaderboardService.getScoreBoard(escaperoom_id);
     }
 
 
