@@ -6,15 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+
 @Data
 @AllArgsConstructor
-@Builder
 @NoArgsConstructor
-public class JoinResponse {
+@Builder
+public class StageResponse {
 
-    private String name;
-
-    private String sessionId;
+    private ArrayList<Object> stage;
 
     private EscapeRoomState state;
 

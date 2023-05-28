@@ -2,6 +2,8 @@ package com.escapedoom.gamesession.services;
 
 import com.escapedoom.gamesession.data.EscapeRoomDao;
 import com.escapedoom.gamesession.data.codeCompiling.*;
+import com.escapedoom.gamesession.data.response.JoinResponse;
+import com.escapedoom.gamesession.data.response.StageResponse;
 import com.escapedoom.gamesession.repositories.*;
 import com.escapedoom.gamesession.utils.CodeSniptes;
 import com.escapedoom.gamesession.utils.SseEmitterExtended;
@@ -99,12 +101,16 @@ public class PlayerStateManagementService {
 
     private final Random random = new Random();
 
-    public String mangeStateBySessionID(String httpSessionID, Long escaperoomSession) {
+    public JoinResponse mangeStateBySessionID(String httpSessionID, Long escaperoomSession) {
 
         Optional<OpenLobbys> lobbyOpt = openLobbyRepository.findByLobbyId(escaperoomSession);
         OpenLobbys lobby = null;
         if (lobbyOpt.isEmpty()) {
-            return null;
+            JoinResponse.builder()
+                    .state(EscapeRoomState.STOPPED)
+                    .name("")
+                    .sessionId("")
+                    .build();
         } else {
             lobby = lobbyOpt.get();
         }
@@ -113,6 +119,8 @@ public class PlayerStateManagementService {
         Player player;
         if (optplayer.isPresent()) {
             player = optplayer.get();
+            if(lobby == null) lobby = new OpenLobbys();
+            lobby.setState(EscapeRoomState.STOPPED);
             switch (lobby.getState()) {
                 case JOINABLE -> {
                     for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
@@ -120,29 +128,51 @@ public class PlayerStateManagementService {
                             sseEmitters.remove(sseEmitterExtended);
                         }
                     }
-                    return player.getName();
+                    return JoinResponse.builder()
+                            .state(lobby.getState())
+                            .sessionId(httpSessionID)
+                            .name(player.getName())
+                            .build();
                 }
                 case PLAYING -> {
-                    //RETURN THE CURRENT STATE
+                    return JoinResponse.builder()
+                            .state(lobby.getState())
+                            .sessionId(httpSessionID)
+                            .name(player.getName())
+                            .build();
                 }
                 case STOPPED -> {
-                    return null;
+                    JoinResponse.builder()
+                            .state(lobby.getState())
+                            .name("")
+                            .sessionId("")
+                            .build();
                 }
             }
         } else {
-            player = Player.builder()
-                    .name(getRandomName())
-                    .escampeRoom_room_id(lobby.getEscaperoom_escaperoom_id())
-                    .httpSessionID(httpSessionID)
-                    .escaperoomSession(escaperoomSession)
-                    .escaperoomStageId(1L)
-                    .score(0L)
-                    .build();
-            sessionManagementRepository.save(player);
+            if (lobby != null) {
+                player = Player.builder()
+                        .name(getRandomName())
+                        .escampeRoom_room_id(lobby.getEscaperoom_escaperoom_id())
+                        .httpSessionID(httpSessionID)
+                        .escaperoomSession(escaperoomSession)
+                        .escaperoomStageId(1L)
+                        .score(0L)
+                        .build();
+                sessionManagementRepository.save(player);
+                update = true;
+                return JoinResponse.builder()
+                        .state(lobby.getState())
+                        .sessionId(httpSessionID)
+                        .name(player.getName())
+                        .build();
+            }
         }
-
-        update = true;
-        return player.getName();
+        return JoinResponse.builder()
+                .state(EscapeRoomState.STOPPED)
+                .name("")
+                .sessionId("")
+                .build();
     }
 
     private void inforAllPlayersAboutPlayers(Player player, Boolean playing) {
@@ -160,6 +190,8 @@ public class PlayerStateManagementService {
     }
 
     public SseEmitterExtended lobbyConnection(String httpId) {
+
+        //TODO CHECK IF SESSION IS STILL JOINABLE
 
         SseEmitterExtended sseEmitter = new SseEmitterExtended();
         sseEmitter.onTimeout(() -> {
@@ -262,18 +294,23 @@ public class PlayerStateManagementService {
         }
 
     }
-    public ArrayList<Object> returnStageToPlayer(String httpSession) {
+    public StageResponse returnStageToPlayer(String httpSession) {
 
         var curr = sessionManagementRepository.findPlayerByHttpSessionID(httpSession);
         if (curr.isPresent()) {
             Optional<OpenLobbys> lobbyId = openLobbyRepository.findByLobbyId(curr.get().getEscaperoomSession());
             if (lobbyId.isPresent()) {
                 if (lobbyId.get().getState() == EscapeRoomState.PLAYING) {
-                    return escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId());
+                    return StageResponse.builder()
+                            .stage(escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId()))
+                            .state(lobbyId.get().getState()).build();
                 }
             }
         }
-        return null;
+        return StageResponse.builder()
+                .stage(new ArrayList<>())
+                .state(EscapeRoomState.STOPPED)
+                .build();
     }
 
     public void startCompiling(CodeCompilingRequestEvent codeCompilingRequestEvent) {

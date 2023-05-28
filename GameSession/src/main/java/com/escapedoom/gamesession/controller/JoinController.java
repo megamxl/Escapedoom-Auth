@@ -1,6 +1,7 @@
 package com.escapedoom.gamesession.controller;
 
 import com.escapedoom.gamesession.data.codeCompiling.CodeStatus;
+import com.escapedoom.gamesession.data.response.StageResponse;
 import com.escapedoom.gamesession.utils.SseEmitterExtended;
 import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
@@ -27,13 +28,7 @@ public class JoinController {
     // method for joining / subscribing
     @GetMapping(value = "/{escaperoom_id}", consumes = MediaType.ALL_VALUE)
     public JoinResponse sessionId(@PathVariable Long escaperoom_id, HttpServletRequest httpSession){
-        var  name=  playerStateManagementService.mangeStateBySessionID(httpSession.getSession().getId(), escaperoom_id);
-        if (name != null) {
-            return JoinResponse.builder().name(name).sessionId(httpSession.getSession().getId()).build();
-        } else {
-            return null;
-        }
-        //TODO if (false /*chack if  player  is already in sse ppol or*/)
+         return playerStateManagementService.mangeStateBySessionID(httpSession.getSession().getId(), escaperoom_id);
     }
 
     @GetMapping(value = "lobby/{id}")
@@ -42,7 +37,7 @@ public class JoinController {
     }
 
     @GetMapping(value = "getStage/{httpSession}")
-    public ArrayList<Object> currentStage(@PathVariable String httpSession) {
+    public StageResponse currentStage(@PathVariable String httpSession) {
         return playerStateManagementService.returnStageToPlayer(httpSession);
     }
 
