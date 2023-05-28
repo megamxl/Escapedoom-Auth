@@ -22,6 +22,7 @@ public class ConsoleNodeCode {
 
     private String functionSignature;
 
+    @Column(length = 1000)
     private String input;
 
     private String variableName;

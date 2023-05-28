@@ -151,6 +151,26 @@ public class EscaperoomService {
                 .variableName("boardInput")
                 .build());
 
+        ConsoleNodeCode save2 = codeRiddleRepository.save(ConsoleNodeCode.builder()
+                .language(CodingLanguage.Java)
+                .functionSignature("public static int solve(List<List<Boolean>> input) {\n\n}")
+                .input("     public static List<List<Boolean>> listOfBinary = List.of(\n" +
+                        "                List.of(true, false, false, false, true, true),\n" +
+                        "                List.of(true, true, false, false),\n" +
+                        "                List.of(true,true,false,true,false,true,true,true,false),\n" +
+                        "                List.of(true,true,false,true),\n" +
+                        "                List.of(true,true,false,true,true),\n" +
+                        "                List.of(true,false,false,true,false,true,false,true,false,false),\n" +
+                        "                List.of(true,false,false,false,false,false,false,false),\n" +
+                        "                List.of(true,false,false,true,false,false,false,false,true),\n" +
+                        "                List.of(true,false,false,false,true,true,true,true,false)\n" +
+                        "        ); \n\n")
+                .expectedOutput("4")
+                .variableName("listOfBinary")
+                .build());
+
+
+
         List<Scenes> m = List.of(
                 Scenes.builder()
                         .name("startScene")
@@ -218,11 +238,11 @@ public class EscaperoomService {
                                                         .y(125)
                                                         .build())
                                                 .nodeInfos(ConsoleNodeInfo.builder()
-                                                        .outputID(save.getId())
-                                                        .codeSnipped(save.getFunctionSignature())
-                                                        .desc("I can only try one combination at a time. Find the correct one!")
-                                                        .returnType("4 digit integer")
-                                                        .exampleInput(save.getInput())
+                                                        .outputID(save2.getId())
+                                                        .codeSnipped(save2.getFunctionSignature())
+                                                        .desc("I can only see true and false I have seen this format before ")
+                                                        .returnType("The current floor as integer")
+                                                        .exampleInput("[ [true,false,true], [true,false,false,false] ]")
                                                         .png("png.url")
                                                         .title("INPUT")
                                                         .build())
@@ -235,9 +255,9 @@ public class EscaperoomService {
                                                         .build()
                                                 )
                                                 .nodeInfos(DetailsNodeInfo.builder()
-                                                        .desc("This item is really strange, I wonder if it still works...")
-                                                        .png("https://media.istockphoto.com/id/145132637/de/foto/alte-telefon.jpg?s=612x612&w=0&k=20&c=vKbE1neCPbp1AAdNZuW042vAxt7liMV52tEIAsHNjqs=")
-                                                        .title("An old Phone")
+                                                        .desc("I can see that the even sum needs to be subtracted form the odd sum")
+                                                        .png("https://de.wikipedia.org/wiki/Matt_Riddle#/media/Datei:Matt_Riddle_August_2017.jpg")
+                                                        .title("An Old Chad")
                                                         .build())
                                                 .build(),
                                         Node.builder()
@@ -278,6 +298,7 @@ public class EscaperoomService {
                         .build(),
                 EscapeRoomStage.builder()
                         .stageId(2L)
+                        .outputID(save2.getId())
                         .escaperoom(dummy)
                         .stage(m3)
                         .build()
