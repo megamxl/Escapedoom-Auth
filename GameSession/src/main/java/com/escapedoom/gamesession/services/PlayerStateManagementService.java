@@ -136,7 +136,6 @@ public class PlayerStateManagementService {
                     .escaperoomStageId(1L)
                     .build();
             sessionManagementRepository.save(player);
-            //TODO return the last saved state
         }
 
         update = true;

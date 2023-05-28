@@ -5,6 +5,8 @@ import com.escapedoom.auth.data.dataclasses.models.escaperoom.EscapeRoomState;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.Escaperoom;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @RequiredArgsConstructor
 public class EscaperoomDTO {
@@ -17,10 +19,9 @@ public class EscaperoomDTO {
 
     private String topic;
 
-    private long time;
+    private LocalDateTime time;
 
     private EscapeRoomState escapeRoomState;
-
 
     public EscaperoomDTO(Escaperoom escaperoom, EscapeRoomState escapeRoomState) {
         this.escaproom_id = escaperoom.getEscaperoom_id();

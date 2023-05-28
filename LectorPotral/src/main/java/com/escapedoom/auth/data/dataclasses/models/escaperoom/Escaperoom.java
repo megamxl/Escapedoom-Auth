@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -29,14 +30,14 @@ public class Escaperoom {
 
     private String topic;
 
-    private Long time;
+    private LocalDateTime time;
 
     @OneToMany(mappedBy = "escaperoom", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<EscapeRoomStage> escapeRoomStages;
 
     private Long maxStage;
 
-    public Escaperoom(Long escaperoom_id, User user, String name, String topic, Long time, List<EscapeRoomStage> escapeRoomStages, Long maxStage) {
+    public Escaperoom(Long escaperoom_id, User user, String name, String topic, LocalDateTime time, List<EscapeRoomStage> escapeRoomStages, Long maxStage) {
         this.escaperoom_id = escaperoom_id;
         this.user = user;
         this.name = name;
@@ -90,11 +91,11 @@ public class Escaperoom {
         this.topic = topic;
     }
 
-    public Long getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(Long time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 

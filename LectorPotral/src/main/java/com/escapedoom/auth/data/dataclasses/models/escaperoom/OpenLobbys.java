@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,4 +29,15 @@ public class OpenLobbys {
     @Enumerated(EnumType.STRING)
     private EscapeRoomState state;
 
+    private LocalDateTime endTime;
+
+    @Override
+    public String toString() {
+        return "OpenLobbys{" +
+                "lobby_Id=" + lobby_Id +
+                ", user=" + user +
+                ", state=" + state +
+                ", endTime=" + endTime +
+                '}';
+    }
 }

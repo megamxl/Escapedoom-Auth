@@ -29,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -111,7 +112,7 @@ public class EscaperoomService {
                 Escaperoom.builder().user((User) user)
                         .name("Catch me")
                         .topic("Yee")
-                        .time(90L)
+                        .time(LocalDateTime.now().plusMinutes(3))
                         .build();
 
         var m2 = List.of(
@@ -264,7 +265,7 @@ public class EscaperoomService {
                         .name("Catch me")
                         .topic("Yee")
                         .escapeRoomStages(Collections.emptyList())
-                        .time(90L)
+                        .time(LocalDateTime.now())
                         .build();
 
 
@@ -325,15 +326,18 @@ public class EscaperoomService {
         }
     }
 
-    public String changeEscapeRoomState(Long escapeRoomId, EscapeRoomState escapeRoomState) {
+    public String changeEscapeRoomState(Long escapeRoomId, EscapeRoomState escapeRoomState, Long time) {
         var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
 
         if (escaperoom != null && getUser() != null) {
             OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser()).get();
             openLobbys.setState(escapeRoomState);
-            lobbyRepository.save(openLobbys);
             lobbyRepository.flush();
+            lobbyRepository.save(openLobbys);
             if (escapeRoomState == EscapeRoomState.PLAYING) {
+                openLobbys.setEndTime(LocalDateTime.now().plusMinutes(time));
+                lobbyRepository.flush();
+                lobbyRepository.save(openLobbys);
                 informSession(openLobbys.getLobby_Id());
             }
             return "Stopped EscapeRoom with ID";

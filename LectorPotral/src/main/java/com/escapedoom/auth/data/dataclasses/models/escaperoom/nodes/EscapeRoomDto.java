@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,7 +18,7 @@ public class EscapeRoomDto {
 
     private String topic;
 
-    private long time;
+    private LocalDateTime time;
 
     private List<EscapeRoomStage> escapeRoomStages;
 

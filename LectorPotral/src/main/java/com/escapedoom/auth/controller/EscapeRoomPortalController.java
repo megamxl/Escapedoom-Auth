@@ -37,15 +37,15 @@ public class EscapeRoomPortalController {
     }
 
     @CrossOrigin
-    @PostMapping(value = "startEscapeRoom/{escapeRoomId}")
-    public ResponseEntity<String> startEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
-        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.PLAYING));
+    @PostMapping(value = "startEscapeRoom/{escapeRoomId}/{minutes}")
+    public ResponseEntity<String> startEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId, @PathVariable("minutes") Long minutes) {
+        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.PLAYING ,minutes));
     }
 
     @CrossOrigin
     @PostMapping(value = "stopEscapeRoom/{escapeRoomId}")
     public ResponseEntity<String> stopEscapeRoom(@PathVariable("escapeRoomId") Long lobbyId) {
-        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.STOPPED));
+        return ResponseEntity.ok(escaperoomService.changeEscapeRoomState(lobbyId, EscapeRoomState.STOPPED,null));
     }
 
 }

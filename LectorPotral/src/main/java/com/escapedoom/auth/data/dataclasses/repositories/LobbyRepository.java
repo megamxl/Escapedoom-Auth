@@ -19,12 +19,16 @@ public interface LobbyRepository extends JpaRepository<OpenLobbys, Long> {
     void deleteByEscaperoomAndUser(Escaperoom escaperoom, User user);
 
     Optional<List<OpenLobbys>> findByEscaperoomAndUser(Escaperoom escaperoom, User user);
-    
+
+    @Query(value = "FROM OpenLobbys os where os.state = 'PLAYING'")
+    Optional<List<OpenLobbys>> findAllByStatePlaying();
+
 
     @Query(value = "select * " +
             "from open_lobbys op " +
             "where op.state not like 'STOPPED' " +
             "and op.escaperoom_escaperoom_id = ?1 ", nativeQuery = true)
+
     Optional<OpenLobbys> findByEscaperoomAndUserAndStateStoppedNot(Long escaperoomID, User user);
 
 }
