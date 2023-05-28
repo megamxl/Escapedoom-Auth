@@ -139,6 +139,7 @@ public class PlayerStateManagementService {
                     .httpSessionID(httpSessionID)
                     .escaperoomSession(escaperoomSession)
                     .escaperoomStageId(1L)
+                    .score(0L)
                     .build();
             sessionManagementRepository.save(player);
         }
@@ -358,9 +359,9 @@ public class PlayerStateManagementService {
                                 Long maxStage = escapeRoomRepo.getMaxStage(playerByHttpSessionID.get().getEscampeRoom_room_id());
                                 if (playerByHttpSessionID.get().getEscaperoomStageId() + 1 < maxStage) {
                                     Player player = playerByHttpSessionID.get();
-                                    player.setEscaperoomStageId(playerByHttpSessionID.get().getEscaperoomStageId() +1 );
+                                    player.setEscaperoomStageId(playerByHttpSessionID.get().getEscaperoomStageId() + 1);
                                     //TODO CHANGE THE ADDED AMOUNT TO THE TIMESTAMP
-                                    player.setScore(player.getScore() +30);
+                                    player.setScore(player.getScore() + 30L);
                                     sessionManagementRepository.save(player);
                                     return "Success \n" + compilingProcessRepositoryById.get().getOutput();
                                 }
