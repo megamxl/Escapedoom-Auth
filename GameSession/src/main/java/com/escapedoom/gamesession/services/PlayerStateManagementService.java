@@ -406,7 +406,11 @@ public class PlayerStateManagementService {
                                     return CodeStatus.builder().status(CState.WON).output(compilingProcessRepositoryById.get().getOutput()).build();
                                 }
                             } else {
-                                return CodeStatus.builder().status(CState.COMPILED).output(compilingProcessRepositoryById.get().getOutput()).build();
+                                CState c = CState.COMPILED;
+                                if (compilingProcessRepositoryById.get().getOutput().equals("COMPILE ERROR")) {
+                                    c = CState.ERROR;
+                                }
+                                return CodeStatus.builder().status(c).output(compilingProcessRepositoryById.get().getOutput()).build();
                             }
                         }
                     } else {
