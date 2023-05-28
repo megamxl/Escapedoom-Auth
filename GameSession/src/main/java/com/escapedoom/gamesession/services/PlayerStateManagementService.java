@@ -397,10 +397,7 @@ public class PlayerStateManagementService {
                                     //TODO CHANGE THE ADDED AMOUNT TO THE TIMESTAMP
                                     player.setScore(player.getScore() + 30L);
                                     Optional<OpenLobbys> byLobbyId = openLobbyRepository.findByLobbyId(player.getEscaperoomSession());
-                                    var second = byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.SECONDS);
-                                    var min = byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.MINUTES);
-                                    var hour = byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.HOURS);
-                                    player.setLastStageSolved(hour+"h " + min +"m " + second + "s");
+                                    player.setLastStageSolved(byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.SECONDS));
                                     sessionManagementRepository.save(player);
                                     //solved Stage
                                     return CodeStatus.builder().status(CState.SUCCESS).output(compilingProcessRepositoryById.get().getOutput()).build();

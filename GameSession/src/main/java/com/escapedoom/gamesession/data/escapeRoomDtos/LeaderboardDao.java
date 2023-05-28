@@ -10,7 +10,7 @@ public class LeaderboardDao {
 
     private Long score;
 
-    private String time;
+    private Long time;
 
     public LeaderboardDao(Player player) {
         this.PlayerName = player.getName();
