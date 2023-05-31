@@ -4,6 +4,7 @@ import com.escapedoom.gamesession.data.EscapeRoomDao;
 import com.escapedoom.gamesession.data.codeCompiling.*;
 import com.escapedoom.gamesession.data.response.JoinResponse;
 import com.escapedoom.gamesession.data.response.StageResponse;
+import com.escapedoom.gamesession.data.response.StatusReturn;
 import com.escapedoom.gamesession.repositories.*;
 import com.escapedoom.gamesession.utils.CodeSniptes;
 import com.escapedoom.gamesession.utils.SseEmitterExtended;
@@ -193,8 +194,6 @@ public class PlayerStateManagementService {
 
     public SseEmitterExtended lobbyConnection(String httpId) {
 
-        //TODO CHECK IF SESSION IS STILL JOINABLE
-
         SseEmitterExtended sseEmitter = new SseEmitterExtended();
         sseEmitter.onTimeout(() -> {
             sseEmitter.complete();
@@ -213,8 +212,6 @@ public class PlayerStateManagementService {
         sseEmitter.setName(player.getName());
         sseEmitters.add(sseEmitter);
 
-        //TODO JOINIG ON PLAYING HANDELEN
-
         try {
             sseEmitter.send(SseEmitter.event().name(YOUR_NAME_EVENT).data(sseEmitter.getName()));
             var players = sessionManagementRepository.findAllByEscaperoomSession(player.getEscaperoomSession());
@@ -225,7 +222,7 @@ public class PlayerStateManagementService {
             }
             sseEmitter.send(SseEmitter.event().name(ALL_NAME_EVENT).data(jsonPlayers.toString()));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.out.println("should not happen");;
         }
         sseEmitter.onCompletion(() -> {
             synchronized (this.sseEmitters) {
@@ -305,13 +302,21 @@ public class PlayerStateManagementService {
                 if (lobbyId.get().getState() == EscapeRoomState.PLAYING) {
                     return StageResponse.builder()
                             .stage(escapeRoomRepo.getEscapeRoomStageByEscaperoomIDAndStageNumber(curr.get().getEscampeRoom_room_id(), curr.get().getEscaperoomStageId()))
+                            .roomID(lobbyId.get().getLobbyId())
                             .state(lobbyId.get().getState()).build();
+                } else if (lobbyId.get().getState() == EscapeRoomState.JOINABLE) {
+                    return StageResponse.builder()
+                            .stage(new ArrayList<>())
+                            .state(lobbyId.get().getState())
+                            .roomID(lobbyId.get().getLobbyId())
+                            .build();
                 }
             }
         }
         return StageResponse.builder()
                 .stage(new ArrayList<>())
                 .state(EscapeRoomState.STOPPED)
+                .roomID(null)
                 .build();
     }
 
@@ -403,7 +408,7 @@ public class PlayerStateManagementService {
                                     return CodeStatus.builder().status(CState.SUCCESS).output(compilingProcessRepositoryById.get().getOutput()).build();
                                 } else {
                                     // won ROOM
-                                    return CodeStatus.builder().status(CState.WON).output(compilingProcessRepositoryById.get().getOutput()).build();
+                                    return CodeStatus.builder().status(CState.WON).output(playerByHttpSessionID.get().getEscaperoomSession().toString()).build();
                                 }
                             } else {
                                 CState c = CState.COMPILED;
@@ -427,4 +432,20 @@ public class PlayerStateManagementService {
             return CodeStatus.builder().status(CState.BADREQUEST).output("").build();
         }
     }
+
+    public StatusReturn getCurrentStatus(String playerID) {
+        var curr = sessionManagementRepository.findPlayerByHttpSessionID(playerID);
+        if (curr.isPresent()) {
+            Optional<OpenLobbys> lobbyId = openLobbyRepository.findByLobbyId(curr.get().getEscaperoomSession());
+            if (lobbyId.isPresent()) {
+                    return StatusReturn.builder()
+                            .state(lobbyId.get().getState())
+                            .build();
+            }
+        }
+        return StatusReturn.builder()
+                .state(EscapeRoomState.STOPPED)
+                .build();
+    }
+
 }

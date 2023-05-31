@@ -145,7 +145,11 @@ public class EscaperoomService {
 
         ConsoleNodeCode save = codeRiddleRepository.save(ConsoleNodeCode.builder()
                 .language(CodingLanguage.Java)
-                .functionSignature("public static String solve(String boardInput) {\n\n}")
+                .functionSignature("/**\n" +
+                        "* @param boardInput the input string\n" +
+                        "* @return the message you need\n" +
+                        "*/\n" +
+                        "public static String solve(String boardInput) {\n\n}")
                 .input("public static String boardInput = \"lipps$M$Eq$mrxiviwxih$mr$Wlmjxmrk\"; \n\n")
                 .expectedOutput("hello I Am interested in Shifting")
                 .variableName("boardInput")
@@ -153,7 +157,17 @@ public class EscaperoomService {
 
         ConsoleNodeCode save2 = codeRiddleRepository.save(ConsoleNodeCode.builder()
                 .language(CodingLanguage.Java)
-                .functionSignature("public static int solve(List<List<Boolean>> input) {\n\n}")
+                .functionSignature("/**\n" +
+                        "* @param input is a List of Lists of Booleans \n" +
+                        "*              Example \n" +
+                        "*              [\n" +
+                        "*                  [true,true,false,true],\n" +
+                        "*                  [false,true,false,true,true,true],\n" +
+                        "*                  [true,true],\n" +
+                        "*              ]\n" +
+                        "* @return the current Floor\n" +
+                        "*/\n" +
+                        "public static int solve(List<List<Boolean>> input) {\n\n}")
                 .input("     public static List<List<Boolean>> listOfBinary = List.of(\n" +
                         "                List.of(true, false, false, false, true, true),\n" +
                         "                List.of(true, true, false, false),\n" +

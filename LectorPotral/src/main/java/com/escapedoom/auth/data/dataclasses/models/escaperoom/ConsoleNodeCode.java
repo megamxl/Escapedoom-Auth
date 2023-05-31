@@ -20,6 +20,7 @@ public class ConsoleNodeCode {
     @Enumerated(EnumType.STRING)
     private CodingLanguage language;
 
+    @Column(length = 400)
     private String functionSignature;
 
     @Column(length = 1000)
