@@ -14,4 +14,6 @@ public class StatusReturn {
 
     private EscapeRoomState state;
 
+    private Long roomID;
+
 }

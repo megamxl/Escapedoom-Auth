@@ -125,11 +125,7 @@ public class PlayerStateManagementService {
             lobby.setState(EscapeRoomState.STOPPED);
             switch (lobby.getState()) {
                 case JOINABLE -> {
-                    for (SseEmitterExtended sseEmitterExtended : sseEmitters) {
-                        if (sseEmitterExtended.getHttpID().equals(httpSessionID)) {
-                            sseEmitters.remove(sseEmitterExtended);
-                        }
-                    }
+                    sseEmitters.removeIf(sseEmitterExtended -> sseEmitterExtended.getHttpID().equals(httpSessionID));
                     return JoinResponse.builder()
                             .state(lobby.getState())
                             .sessionId(httpSessionID)
@@ -408,6 +404,7 @@ public class PlayerStateManagementService {
                                     return CodeStatus.builder().status(CState.SUCCESS).output(compilingProcessRepositoryById.get().getOutput()).build();
                                 } else {
                                     // won ROOM
+                                    //TODO SCORE ERHÖHEN
                                     return CodeStatus.builder().status(CState.WON).output(playerByHttpSessionID.get().getEscaperoomSession().toString()).build();
                                 }
                             } else {
@@ -440,11 +437,13 @@ public class PlayerStateManagementService {
             if (lobbyId.isPresent()) {
                     return StatusReturn.builder()
                             .state(lobbyId.get().getState())
+                            .roomID(lobbyId.get().getLobbyId())
                             .build();
             }
         }
         return StatusReturn.builder()
                 .state(EscapeRoomState.STOPPED)
+                .roomID(null)
                 .build();
     }
 

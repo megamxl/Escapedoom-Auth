@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 public class OpenLobbys {
 
+    //TODO THIS FILED IS THE ROOM PIN MAKE IST MORE CRACY NOT PROCEDUARAL
     @Id
     @GeneratedValue
     private Long lobbyId;

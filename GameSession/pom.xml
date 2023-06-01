@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.EscapeDoom</groupId>
     <artifactId>GameSession</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>GameSession</name>
     <description>GameSession</description>
     <properties>
