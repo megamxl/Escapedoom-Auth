@@ -20,12 +20,16 @@ public class ConsoleNodeCode {
     @Enumerated(EnumType.STRING)
     private CodingLanguage language;
 
+    @Column(length = 1000)
     private String functionSignature;
 
+    @Column(length = 1000)
     private String input;
 
+    @Column(length = 1000)
     private String variableName;
 
+    @Column(length = 1000)
     private String expectedOutput;
 
 }
