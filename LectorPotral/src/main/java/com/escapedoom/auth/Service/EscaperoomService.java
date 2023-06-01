@@ -1,5 +1,6 @@
 package com.escapedoom.auth.Service;
 
+import com.escapedoom.auth.data.dataclasses.Requests.RegisterRequest;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.*;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.*;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ConsoleNodeInfo;
@@ -7,10 +8,7 @@ import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.Data
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DetailsNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ZoomNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.user.User;
-import com.escapedoom.auth.data.dataclasses.repositories.CodeRiddleRepository;
-import com.escapedoom.auth.data.dataclasses.repositories.EscaperoomRepository;
-import com.escapedoom.auth.data.dataclasses.repositories.LobbyRepository;
-import com.escapedoom.auth.data.dataclasses.repositories.TestRepo;
+import com.escapedoom.auth.data.dataclasses.repositories.*;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
@@ -41,6 +39,10 @@ public class EscaperoomService {
 
     private final EscaperoomRepository escaperoomRepository;
 
+    private final AuthenticationService authenticationService;
+
+    private final UserRepository userRepository;
+
     private final LobbyRepository lobbyRepository;
 
     private final CodeRiddleRepository codeRiddleRepository;
@@ -54,89 +56,30 @@ public class EscaperoomService {
 
     @Transactional
     public EscapeRoomDto createADummyRoom() {
-        var user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Scenes> m = List.of(
-                Scenes.builder()
-                        .name("startScene")
-                        .bgImg("https://www.noen.at/image/1920x1080-c-jpg/2282568/OPIC_007_%28C%29%20FH%20Campus%20Wien-David%20Bohmann%20%28Large%29.jpg")
-                        .nodes(List.of(
-                                        Node.builder()
-                                                .type(NodeType.Console)
-                                                .pos(Position.builder()
-                                                        .x(250)
-                                                        .y(125)
-                                                        .build())
-                                                .nodeInfos(ConsoleNodeInfo.builder()
-                                                        .outputID(12L)
-                                                        .codeSnipped("System.out.println(\"Hello World\")")
-                                                        .desc("I can only try one combination at a time. Find the correct one!")
-                                                        .returnType("4 digit integer")
-                                                        .exampleInput("1234")
-                                                        .png("png.url")
-                                                        .title("INPUT")
-                                                        .build())
-                                                .build(),
-                                        Node.builder()
-                                                .type(NodeType.Details)
-                                                .pos(Position.builder()
-                                                        .x(250)
-                                                        .y(125)
-                                                        .build()
-                                                )
-                                                .nodeInfos(DetailsNodeInfo.builder()
-                                                        .desc("This item is really strange, I wonder if it still works...")
-                                                        .png("https://media.istockphoto.com/id/145132637/de/foto/alte-telefon.jpg?s=612x612&w=0&k=20&c=vKbE1neCPbp1AAdNZuW042vAxt7liMV52tEIAsHNjqs=")
-                                                        .title("An old Phone")
-                                                        .build())
-                                                .build(),
-                                        Node.builder()
-                                                .type(NodeType.Data)
-                                                .pos(Position.builder().x(250).y(125).build()
-                                                )
-                                                .nodeInfos(DataNodeInfo.builder()
-                                                        .title("Object output")
-                                                        .desc("Some story like object description")
-                                                        .parameterType("A string containing the letters")
-                                                        .exampleOutput("ASDFGAIKVNAKSDNFJIVNHAEKW").build())
-                                                .build(),
-                                        Node.builder()
-                                                .type(NodeType.Zoom)
-                                                .pos(Position.builder().x(250).y(125).build()
-                                                )
-                                                .nodeInfos(ZoomNodeInfo.builder().build())
-                                                .build()
-                                )
-                        ).build()
-        );
-        Escaperoom dummy =
-                Escaperoom.builder().user((User) user)
-                        .name("Catch me")
-                        .topic("Yee")
-                        .time(90)
-                        .build();
+        authenticationService.register(
+                RegisterRequest.builder()
+                        .firstname("Leon")
+                        .lastname("FreudenThaler")
+                        .email("leon@escapeddoom.com")
+                        .password("escapeDoom")
+                        .build());
+        authenticationService.register(
+                RegisterRequest.builder()
+                        .firstname("Bernhard")
+                        .lastname("Taufner")
+                        .email("bernhard@escapeddoom.com")
+                        .password("escapeDoom")
+                        .build());
 
-        var m2 = List.of(
-                EscapeRoomStage.builder()
-                        .stageId(1L)
-                        .escaperoom(dummy)
-                        .stage(m)
-                        .build(),
-                EscapeRoomStage.builder()
-                        .stageId(2L)
-                        .escaperoom(dummy)
-                        .stage(m)
-                        .build()
-        );
+        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
+        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
+        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
 
-        dummy.setEscapeRoomStages(m2);
-        escaperoomRepository.save(dummy);
-        return EscapeRoomDto.builder()
-                .escaperoom_id(dummy.getEscaperoom_id())
-                .name(dummy.getName())
-                .topic(dummy.getTopic())
-                .time(dummy.getTime())
-                .escapeRoomStages(dummy.getEscapeRoomStages())
-                .build();
+        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
+        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
+        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
+
+        return null;
     }
 
 
