@@ -16,8 +16,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/LectorPortal
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_KAFKA_BOOTSTRAP-SERVERS=broker:29092
-    ports:
-      - 8090:8090
   lectorportal:
     networks:
       - default-net
@@ -34,8 +32,6 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/LectorPortal
       - GAMESESION_URL=http://gamesession:8090
-    ports:
-      - 8080:8080
 
   website:
     networks:
@@ -49,17 +45,12 @@ services:
         - redis
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/LectorPortal
-    ports: #TODO nur mehr 8080 exposen und genau über den soll die ganze Funktionalität verfügbar sein
-      - 80:80
 
   redis:
     networks:
       - default-net
     image: redis
     container_name: redis
-#    restart: always #wenn docker container failed, wird restartet
-    ports:
-      - 6379:6379
     command: redis-server --save 60 1 --loglevel warning #save 1 or more writes every 20 seconds to disk
     volumes:
       - redis_data:/data #named volume, speichert Redis-Daten auf dem host system.
@@ -74,8 +65,6 @@ services:
       POSTGRES_USER: myuser           #optional damit auch user+password vorhanden
       POSTGRES_PASSWORD: mypassword   #required
       POSTGRES_DB: LectorPortal       #optional fr default database
-    ports:
-      - 5432:5432
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -93,9 +82,6 @@ services:
       - default-net
     image: confluentinc/cp-kafka:7.3.2
     container_name: broker
-    ports: # To learn about configuring Kafka for access across networks see
-      # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
-      - "9092:9092"
     depends_on:
       - zookeeper
     environment:
@@ -113,6 +99,20 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       default-net:
+
+  nginx:
+    networks:
+      - default-net
+    image: nginx
+    depends_on:
+      - db
+      - broker
+      - zookeeper
+      - lectorportal
+      - gamesession
+      - executor
+    ports:
+      - "80:80"
 
 volumes:
   redis_data:

@@ -8,6 +8,7 @@ import com.escapedoom.gamesession.data.Player;
 import com.escapedoom.gamesession.data.codeCompiling.CodeCompilingRequestEvent;
 import com.escapedoom.gamesession.data.response.JoinResponse;
 import com.escapedoom.gamesession.services.PlayerStateManagementService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

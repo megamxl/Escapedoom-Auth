@@ -42,3 +42,10 @@ server:
 escapedoom:
   codecompiler:
     code-compiler-topic: codeCompiler
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          filter:
+            org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
