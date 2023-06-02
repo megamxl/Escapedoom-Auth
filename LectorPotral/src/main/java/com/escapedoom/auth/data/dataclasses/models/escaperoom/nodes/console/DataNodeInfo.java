@@ -1,5 +1,6 @@
 package com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.*;
@@ -15,6 +16,7 @@ public class DataNodeInfo extends NodeInfoAbstract {
 
     private String title;
 
+    @Column(length = 1000)
     private String desc;
 
     private String parameterType;

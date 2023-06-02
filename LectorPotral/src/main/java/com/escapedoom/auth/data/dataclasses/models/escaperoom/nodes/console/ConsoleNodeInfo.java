@@ -1,5 +1,6 @@
 package com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console;
 
+import jakarta.persistence.Column;
 import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
@@ -13,6 +14,7 @@ public class ConsoleNodeInfo extends NodeInfoAbstract {
 
     private String codeSnipped;
 
+    @Column(length = 500)
     private String desc;
 
     private String returnType;

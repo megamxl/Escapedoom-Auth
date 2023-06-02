@@ -13,7 +13,7 @@ public class Security {
     @Bean
     public SecurityFilterChain securityFilerChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable().cors().and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().disable();
