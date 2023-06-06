@@ -130,7 +130,7 @@ public class EscaperoomService {
         List<Scenes> m = List.of(
                 Scenes.builder()
                         .name("startScene")
-                        .bgImg("https://i.imgur.com/aU8agX4.png")
+                        .bgImg("https://i.imgur.com/fICDEUI.png")
                         .nodes(List.of(
                                         Node.builder()
                                                 .type(NodeType.Console)
