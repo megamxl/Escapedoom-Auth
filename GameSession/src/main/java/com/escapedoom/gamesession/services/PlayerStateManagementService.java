@@ -395,8 +395,7 @@ public class PlayerStateManagementService {
                                 if (playerByHttpSessionID.get().getEscaperoomStageId() + 1 < maxStage) {
                                     Player player = playerByHttpSessionID.get();
                                     player.setEscaperoomStageId(playerByHttpSessionID.get().getEscaperoomStageId() + 1);
-                                    //TODO CHANGE THE ADDED AMOUNT TO THE TIMESTAMP
-                                    player.setScore(player.getScore() + 30L);
+                                    player.setScore(player.getScore() + 10L * playerByHttpSessionID.get().getEscaperoomStageId());
                                     Optional<OpenLobbys> byLobbyId = openLobbyRepository.findByLobbyId(player.getEscaperoomSession());
                                     player.setLastStageSolved(byLobbyId.get().getStartTime().until(LocalDateTime.now(), ChronoUnit.SECONDS));
                                     sessionManagementRepository.save(player);
@@ -404,9 +403,12 @@ public class PlayerStateManagementService {
                                     return CodeStatus.builder().status(CState.SUCCESS).output(compilingProcessRepositoryById.get().getOutput()).build();
                                 } else {
                                     // won ROOM
-                                    //TODO SCORE ERHÖHEN
+                                    Player player = playerByHttpSessionID.get();
+                                    player.setScore(player.getScore() + 10L * playerByHttpSessionID.get().getEscaperoomStageId());
+                                    sessionManagementRepository.save(player);
                                     return CodeStatus.builder().status(CState.WON).output(playerByHttpSessionID.get().getEscaperoomSession().toString()).build();
                                 }
+
                             } else {
                                 CState c = CState.COMPILED;
                                 if (compilingProcessRepositoryById.get().getOutput().equals("COMPILE ERROR")) {

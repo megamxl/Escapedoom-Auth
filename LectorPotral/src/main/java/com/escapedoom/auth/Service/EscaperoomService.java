@@ -120,9 +120,10 @@ public class EscaperoomService {
                         "                List.of(true,false,false,true,false,true,false,true,false,false),\n" +
                         "                List.of(true,false,false,false,false,false,false,false),\n" +
                         "                List.of(true,false,false,true,false,false,false,false,true),\n" +
-                        "                List.of(true,false,false,false,true,true,true,true,false)\n" +
+                        "                List.of(true,false,false,false,true,true,true,true,false),\n" +
+                        "                List.of(true,false,false,false,false,true,true,true,true,true,true)\n" +
                         "        ); \n\n")
-                .expectedOutput("4")
+                .expectedOutput("-1")
                 .variableName("listOfBinary")
                 .build());
 
@@ -141,7 +142,7 @@ public class EscaperoomService {
                                                 .nodeInfos(ConsoleNodeInfo.builder()
                                                         .outputID(save.getId())
                                                         .codeSnipped(save.getFunctionSignature())
-                                                        .desc("The door is locked by a passcode, next to the door is some cryptic text. Maybe I will find some hints in the room of what to do with it")
+                                                        .desc("The door is locked by a passcode, next to the door is some encrypted text. Maybe I will find some hints in the room of what to do with it")
                                                         .returnType("String")
                                                         .exampleInput("\"Hello i am the input\"")
                                                         .png("png.url")
@@ -208,9 +209,9 @@ public class EscaperoomService {
                                                         .build()
                                                 )
                                                 .nodeInfos(DetailsNodeInfo.builder()
-                                                        .desc("On a note in the elevator is written 'The odd and the even... but what's the *difference*'?")
-                                                        .png("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Matt_Riddle_August_2017.jpg/800px-Matt_Riddle_August_2017.jpg")
-                                                        .title("Even vs Odd")
+                                                        .desc("On a note in the elevator is written 'The sum of the odd and the sum of the even numbers... but what's the *difference*'?")
+                                                        .png("https://img.freepik.com/freie-ikonen/mathematischen-operationszeichen-innerhalb-der-quadrate_318-35091.jpg")
+                                                        .title("Even diff Odd")
                                                         .build())
                                                 .build(),
                                         Node.builder()
