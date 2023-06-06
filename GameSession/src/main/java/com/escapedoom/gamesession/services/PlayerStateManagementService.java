@@ -369,7 +369,7 @@ public class PlayerStateManagementService {
         var process = compilingProcessRepository.findById(message.key());
         if (process.isPresent()) {
             ProcessingRequest processingRequest = process.get();
-            processingRequest.setOutput(message.value().replace("\n", ""));
+            processingRequest.setOutput(message.value());
             processingRequest.setCompilingStatus(CompilingStatus.Done);
             compilingProcessRepository.save(processingRequest);
         } else {
@@ -390,7 +390,7 @@ public class PlayerStateManagementService {
                     if (escapeRoomDaoByStageIdAndRoomId.isPresent()) {
                         Optional<ConsoleNodeCode> byId = codeRiddleRepository.findById(escapeRoomDaoByStageIdAndRoomId.get().getOutputID());
                         if (byId.isPresent()) {
-                            if (compilingProcessRepositoryById.get().getOutput().equals(byId.get().getExpectedOutput())) {
+                            if (compilingProcessRepositoryById.get().getOutput().replace("\n","").equals(byId.get().getExpectedOutput())) {
                                 Long maxStage = escapeRoomRepo.getMaxStage(playerByHttpSessionID.get().getEscampeRoom_room_id());
                                 if (playerByHttpSessionID.get().getEscaperoomStageId() + 1 < maxStage) {
                                     Player player = playerByHttpSessionID.get();
