@@ -219,7 +219,7 @@ public class EscaperoomService {
                                                 )
                                                 .nodeInfos(DataNodeInfo.builder()
                                                         .title("Riddle 2")
-                                                        .desc("After finally getting out the room, you realize that your only way out of this floor is the elevator. Unfortunatelly, the software seems to be corrupted. Instead of Floors, you only get weird true / false arrays. Maybe there is a way decipher which floor you have to go to.")
+                                                        .desc("After finally getting out the room, you realize that your only way out of this floor is the elevator. Unfortunatelly, the software seems to be corrupted. Instead of Floors, you only get weird true / false lists. Maybe there is a way decipher which floor you have to go to.")
                                                         .build())
                                                 .build()
                                 )
