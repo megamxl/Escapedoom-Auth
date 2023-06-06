@@ -14,6 +14,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.util.List;
+
 @SpringBootApplication
 @EnableScheduling
 public class AuthApplication implements CommandLineRunner {
@@ -71,13 +73,10 @@ public class AuthApplication implements CommandLineRunner {
                 .password("escapeDoom")
                 .build());
 
-//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-//
-//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
+        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get(), List.of(1L, 2L));
+
+        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get(), List.of(3L,4L));
+
 
 
     }

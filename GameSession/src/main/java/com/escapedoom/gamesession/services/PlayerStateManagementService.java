@@ -338,10 +338,21 @@ public class PlayerStateManagementService {
         if (playerByHttpSessionID.isPresent()) {
             Optional<EscapeRoomDao> escapeRoomDaoByStageIdAndRoomId = escapeRoomRepo.findEscapeRoomDaoByStageIdAndRoomId(playerByHttpSessionID.get().getEscaperoomStageId(), playerByHttpSessionID.get().getEscampeRoom_room_id());
             if (escapeRoomDaoByStageIdAndRoomId.isPresent()) {
-                Optional<ConsoleNodeCode> byId = codeRiddleRepository.findById(escapeRoomDaoByStageIdAndRoomId.get().getOutputID());
+                Optional<ConsoleNodeCode> byId = codeRiddleRepository.findByLogicalIDAndLanguage(escapeRoomDaoByStageIdAndRoomId.get().getOutputID(),codeCompilingRequestEvent.getLanguage());
                 if (byId.isPresent()) {
                     codeCompilingRequestEvent.setDateTime(LocalDateTime.now());
-                    codeCompilingRequestEvent.setCode(CodeSniptes.javaClassGenerator(byId.get().getInput(), byId.get().getVariableName() ,codeCompilingRequestEvent.getCode()));
+
+
+                    switch (codeCompilingRequestEvent.getLanguage()) {
+                        case Java -> {
+                            codeCompilingRequestEvent.setCode(CodeSniptes.javaClassGenerator(byId.get().getInput(), byId.get().getVariableName() ,codeCompilingRequestEvent.getCode()));
+                        }
+                        case Javascript -> {
+                            codeCompilingRequestEvent.setCode(CodeSniptes.javaScriptClassGenerator(byId.get().getInput(), byId.get().getVariableName() ,codeCompilingRequestEvent.getCode()));
+                        }
+                        case Python -> {
+                        }
+                    }
                 }
             }
         }

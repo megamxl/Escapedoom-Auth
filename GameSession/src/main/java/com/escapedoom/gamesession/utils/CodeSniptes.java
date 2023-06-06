@@ -28,4 +28,15 @@ public class CodeSniptes {
     public static String javaClassGenerator(String systemInput, String variable , String userCode) {
         return javaClassBeing + systemInput + mainGenerator(variable) +  userCode + javaClassEnding;
     }
+
+
+    private static String javaScriptFunctionBegin = "function solve(";
+
+    private static String javaScriptFunctionEnd = ")\n";
+
+    public static String javaScriptClassGenerator(String systemInput, String variable , String userCode) {
+        return systemInput + userCode ;
+    }
+
+
 }

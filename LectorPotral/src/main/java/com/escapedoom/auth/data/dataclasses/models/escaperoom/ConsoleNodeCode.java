@@ -17,6 +17,8 @@ public class ConsoleNodeCode {
     @GeneratedValue
     private Long id;
 
+    private Long logicalID;
+
     @Enumerated(EnumType.STRING)
     private CodingLanguage language;
 

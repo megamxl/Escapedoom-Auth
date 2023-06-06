@@ -71,23 +71,16 @@ public class EscaperoomService {
                         .password("escapeDoom")
                         .build());
 
-        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-
-        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-
         return null;
     }
 
 
     @Transactional
-    public EscapeRoomDto createADummyRoomForStart(User user) {
+    public EscapeRoomDto createADummyRoomForStart(User user, List<Long> ids) {
 
         ConsoleNodeCode save = codeRiddleRepository.save(ConsoleNodeCode.builder()
                 .language(CodingLanguage.Java)
+                .logicalID(ids.get(0))
                 .functionSignature("/**\n" +
                         "* @param boardInput the input string\n" +
                         "* @return the message you need\n" +
@@ -98,8 +91,12 @@ public class EscaperoomService {
                 .variableName("boardInput")
                 .build());
 
+
+
+
         ConsoleNodeCode save2 = codeRiddleRepository.save(ConsoleNodeCode.builder()
                 .language(CodingLanguage.Java)
+                        .logicalID(ids.get(1))
                 .functionSignature("/**\n" +
                         "* @param input is a List of Lists of Booleans \n" +
                         "*              Example \n" +
@@ -139,7 +136,7 @@ public class EscaperoomService {
                                                         .y(0.3)
                                                         .build())
                                                 .nodeInfos(ConsoleNodeInfo.builder()
-                                                        .outputID(save.getId())
+                                                        .outputID(save.getLogicalID())
                                                         .codeSnipped(save.getFunctionSignature())
                                                         .desc("The door is locked by a passcode, next to the door is some cryptic text. Maybe I will find some hints in the room of what to do with it")
                                                         .returnType("String")
@@ -191,7 +188,7 @@ public class EscaperoomService {
                                                         .y(0.58)
                                                         .build())
                                                 .nodeInfos(ConsoleNodeInfo.builder()
-                                                        .outputID(save2.getId())
+                                                        .outputID(save2.getLogicalID())
                                                         .codeSnipped(save2.getFunctionSignature())
                                                         .desc("A list of boolean lists that seem to have some meaning")
                                                         .title("Elevator Terminal")
@@ -238,13 +235,13 @@ public class EscaperoomService {
         var m2 = List.of(
                 EscapeRoomStage.builder()
                         .stageId(1L)
-                        .outputID(save.getId())
+                        .outputID(save.getLogicalID())
                         .escaperoom(dummy)
                         .stage(m)
                         .build(),
                 EscapeRoomStage.builder()
                         .stageId(2L)
-                        .outputID(save2.getId())
+                        .outputID(save2.getLogicalID())
                         .escaperoom(dummy)
                         .stage(m3)
                         .build()
