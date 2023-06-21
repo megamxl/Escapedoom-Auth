@@ -73,7 +73,7 @@ public class AuthApplication implements CommandLineRunner {
 
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
+         escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
 //
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());

@@ -86,6 +86,7 @@ public class EscaperoomService {
     @Transactional
     public EscapeRoomDto createADummyRoomForStart(User user) {
 
+        //FIXME this is the way to add code to the database
         ConsoleNodeCode save = codeRiddleRepository.save(ConsoleNodeCode.builder()
                 .language(CodingLanguage.Java)
                 .functionSignature("/**\n" +
@@ -128,7 +129,8 @@ public class EscaperoomService {
                 .build());
 
 
-        List<Scenes> m = List.of(
+        //FIXME create Lists of the Scenses Per Stage filed with Node Lists
+        List<Scenes> scenesListForStage1 = List.of(
                 Scenes.builder()
                         .name("startScene")
                         .bgImg("https://i.imgur.com/fICDEUI.png")
@@ -180,7 +182,7 @@ public class EscaperoomService {
         );
 
 
-        List<Scenes> m3 = List.of(
+        List<Scenes> scenesListForStage2 = List.of(
                 Scenes.builder()
                         .name("secondScene")
                         .bgImg("https://images.unsplash.com/photo-1592256410394-51c948ec13d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80")
@@ -235,24 +237,24 @@ public class EscaperoomService {
                         .time(90)
                         .build();
 
-
-        var m2 = List.of(
+        //FIXME Glues everything together for saving
+        var listOfStages = List.of(
                 EscapeRoomStage.builder()
                         .stageId(1L)
                         .outputID(save.getId())
                         .escaperoom(dummy)
-                        .stage(m)
+                        .stage(scenesListForStage1)
                         .build(),
                 EscapeRoomStage.builder()
                         .stageId(2L)
                         .outputID(save2.getId())
                         .escaperoom(dummy)
-                        .stage(m3)
+                        .stage(scenesListForStage2)
                         .build()
         );
 
+        dummy.setEscapeRoomStages(listOfStages);
         escaperoomRepository.save(dummy);
-        dummy.setEscapeRoomStages(m2);
         return EscapeRoomDto.builder()
                 .escaperoom_id(dummy.getEscaperoom_id())
                 .name(dummy.getName())
