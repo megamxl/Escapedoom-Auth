@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Data
 @Builder
@@ -25,6 +27,7 @@ public class EscapeRoomDao {
     private Long stageId;
 
     @Column(name = "stage")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String stage;
 
     private Long outputID;

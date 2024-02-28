@@ -27,11 +27,9 @@ public class AuthApplication implements CommandLineRunner {
     @Autowired
     private EscaperoomService escaperoomService;
 
-
     public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class, args);
     }
-
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -40,21 +38,9 @@ public class AuthApplication implements CommandLineRunner {
         return objectMapper;
     }
 
+
     @Override
     public void run(String... args) throws Exception {
-
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
 
         authenticationService.register(
                 RegisterRequest.builder()

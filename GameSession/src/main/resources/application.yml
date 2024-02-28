@@ -23,7 +23,7 @@ spring:
       leakDetectionThreshold: 10000
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     #TODO Deletes everything when stopped change if needed
     show-sql: true
     properties:

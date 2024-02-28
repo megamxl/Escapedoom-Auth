@@ -6,15 +6,19 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
-      #FIXME: Changer back to 'update' when I want to persist data
-
-    #TODO Deletes everything when stopped change if needed
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    user: myuser
+    password: mypassword
+    baseline-description: "init"
+    baseline-version: 0
 gamesesion:
   url: http://localhost:8090
