@@ -22,3 +22,6 @@ spring:
     baseline-version: 0
 gamesesion:
   url: http://localhost:8090
+logging:
+  level:
+    root: info

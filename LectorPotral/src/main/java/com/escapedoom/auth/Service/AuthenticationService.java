@@ -13,6 +13,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import static io.jsonwebtoken.lang.Assert.notNull;
+
 
 @Service
 @AllArgsConstructor
@@ -25,6 +27,10 @@ public class AuthenticationService {
 
     //TODO No validation of not null
     public AuthenticationResponse register(RegisterRequest registerRequest) {
+
+        notNull(registerRequest.getPassword());
+        notNull(registerRequest.getEmail());
+
         var user = User.builder()
                 .firstname(registerRequest.getFirstname())
                 .lastname(registerRequest.getLastname())

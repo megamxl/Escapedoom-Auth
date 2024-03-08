@@ -1,16 +1,16 @@
 package com.escapedoom.auth.Service;
 
-import com.escapedoom.auth.data.dataclasses.Requests.RegisterRequest;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.*;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.*;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ConsoleNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DataNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.DetailsNodeInfo;
-import com.escapedoom.auth.data.dataclasses.models.escaperoom.nodes.console.ZoomNodeInfo;
 import com.escapedoom.auth.data.dataclasses.models.user.User;
-import com.escapedoom.auth.data.dataclasses.repositories.*;
+import com.escapedoom.auth.data.dataclasses.repositories.CodeRiddleRepository;
+import com.escapedoom.auth.data.dataclasses.repositories.EscaperoomRepository;
+import com.escapedoom.auth.data.dataclasses.repositories.LobbyRepository;
+import com.escapedoom.auth.data.dataclasses.repositories.UserRepository;
 import com.escapedoom.auth.data.dtos.EscaperoomDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -19,6 +19,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +29,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static io.jsonwebtoken.lang.Assert.notNull;
 
 @Service
 @RequiredArgsConstructor
 @Configuration
+@Slf4j
 public class EscaperoomService {
 
     private final EscaperoomRepository escaperoomRepository;
@@ -56,30 +58,7 @@ public class EscaperoomService {
 
     @Transactional
     public EscapeRoomDto createADummyRoom() {
-        authenticationService.register(
-                RegisterRequest.builder()
-                        .firstname("Leon")
-                        .lastname("FreudenThaler")
-                        .email("leon@escapeddoom.com")
-                        .password("escapeDoom")
-                        .build());
-        authenticationService.register(
-                RegisterRequest.builder()
-                        .firstname("Bernhard")
-                        .lastname("Taufner")
-                        .email("bernhard@escapeddoom.com")
-                        .password("escapeDoom")
-                        .build());
-
-        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-
-        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-        createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-
-        return null;
+        return  createADummyRoomForStart(userRepository.findByEmail("leon@doom.at").get());
     }
 
 
@@ -230,7 +209,7 @@ public class EscaperoomService {
         );
 
         Escaperoom dummy =
-                Escaperoom.builder().user((User) user)
+                Escaperoom.builder().user(user)
                         .name("Catch me")
                         .topic("Yee")
                         .escapeRoomStages(Collections.emptyList())
@@ -266,70 +245,76 @@ public class EscaperoomService {
 
     public List<EscaperoomDTO> getAllRoomsByAnUser() {
         var rooms = escaperoomRepository.findEscaperoomByUser(getUser()).orElseThrow();
-        List<EscaperoomDTO> ret = new ArrayList<>();
+        List<EscaperoomDTO> returnList = new ArrayList<>();
         for (Escaperoom escaperoom : rooms) {
-            var m = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser());
+            var byEscaperoomAndUserAndStateStoppedNot = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser());
             EscapeRoomState escapeRoomState = EscapeRoomState.STOPPED;
-            if (m.isPresent()) {
-                escapeRoomState = m.get().getState();
+            if (byEscaperoomAndUserAndStateStoppedNot.isPresent()) {
+                escapeRoomState = byEscaperoomAndUserAndStateStoppedNot.get().getState();
             }
-            ret.add(new EscaperoomDTO(escaperoom, escapeRoomState));
+            returnList.add(new EscaperoomDTO(escaperoom, escapeRoomState));
         }
 
-        return ret;
+        return returnList;
     }
 
     public String openEscapeRoom(Long escapeRoomId) {
-        var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
+        notNull(escapeRoomId);
 
-        if (escaperoom != null && getUser() != null) {
-            var curr = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser());
-            if (curr.isPresent()) {
-                if (curr.get().getState() != EscapeRoomState.STOPPED) {
-                    return curr.get().getLobby_Id().toString();
-                }
-            }
-            var newRoom = lobbyRepository.save(OpenLobbys.builder().escaperoom(escaperoom).user(getUser()).state(EscapeRoomState.JOINABLE).build());
-            return newRoom.getLobby_Id().toString();
-        } else {
-            return null;
+        Escaperoom escaperoom = Objects.requireNonNull(getEscapeRoomAndCheckForUser(escapeRoomId), "Escape room cannot be null");
+
+        var curr = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser());
+        if (curr.isPresent() && curr.get().getState() != EscapeRoomState.STOPPED) {
+            return curr.get().getLobby_Id().toString();
         }
+        var newRoom = lobbyRepository.save(OpenLobbys.builder().escaperoom(escaperoom).user(getUser()).state(EscapeRoomState.JOINABLE).build());
+        return newRoom.getLobby_Id().toString();
+
     }
 
     public String changeEscapeRoomState(Long escapeRoomId, EscapeRoomState escapeRoomState, Long time) {
-        var escaperoom = escaperoomRepository.getReferenceById(escapeRoomId);
+        notNull(escapeRoomId);
+        notNull(escapeRoomState);
 
-        if (escaperoom != null && getUser() != null) {
-            OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escaperoom.getEscaperoom_id(), getUser()).get();
-            openLobbys.setState(escapeRoomState);
-            lobbyRepository.flush();
-            lobbyRepository.save(openLobbys);
-            if (escapeRoomState == EscapeRoomState.PLAYING) {
-                openLobbys.setEndTime(LocalDateTime.now().plusMinutes(time));
-                openLobbys.setStartTime(LocalDateTime.now());
-                lobbyRepository.flush();
-                lobbyRepository.save(openLobbys);
-                informSession(openLobbys.getLobby_Id());
-            }
-            return "Stopped EscapeRoom with ID";
-        } else {
+        if (escapeRoomState == EscapeRoomState.PLAYING) {
+            notNull(time);
+        }
+
+        Escaperoom escapeRoom = Objects.requireNonNull(getEscapeRoomAndCheckForUser(escapeRoomId), "Escape room cannot be null");
+
+        if (getEscapeRoomAndCheckForUser(escapeRoomId) == null) {
+            //TODO Make this return better Things
             return null;
         }
+
+        OpenLobbys openLobbys = lobbyRepository.findByEscaperoomAndUserAndStateStoppedNot(escapeRoom.getEscaperoom_id(), getUser()).orElseThrow();
+        openLobbys.setState(escapeRoomState);
+        lobbyRepository.flush();
+        lobbyRepository.save(openLobbys);
+        if (escapeRoomState == EscapeRoomState.PLAYING) {
+            openLobbys.setEndTime(LocalDateTime.now().plusMinutes(time));
+            openLobbys.setStartTime(LocalDateTime.now());
+            lobbyRepository.flush();
+            lobbyRepository.save(openLobbys);
+            informSession(openLobbys.getLobby_Id());
+        }
+        return "Stopped EscapeRoom with ID";
+
     }
 
     private void informSession(Long id) {
 
-        //TODO Change url to configuration
+        //TODO Change url to Kafka To skip The Http client
 
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
                 .url(urlOfGameSession + "/info/started/" + id)
-                .build(); // defaults to GET
+                .build();
         try {
             Response response = client.newCall(request).execute();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Couldn't start Session {} Exception {}", id, e.getMessage());
         }
 
     }
@@ -343,6 +328,16 @@ public class EscaperoomService {
         Session session = entityManager.unwrap(org.hibernate.Session.class);
         SessionFactory factory = session.getSessionFactory();
         return factory;
+    }
+
+    private Escaperoom getEscapeRoomAndCheckForUser(Long escapeRoomId) {
+        Optional<Escaperoom> escapeRoom = Optional.of(escaperoomRepository.getReferenceById(escapeRoomId));
+
+        if (escapeRoom.isPresent() && getUser() != null) {
+            return escapeRoom.get();
+        }
+
+        return null;
     }
 
 }

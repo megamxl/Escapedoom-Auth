@@ -42,28 +42,28 @@ public class AuthApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        authenticationService.register(
-                RegisterRequest.builder()
-                .firstname("Leon")
-                .lastname("FreudenThaler")
-                .email("leon@escapeddoom.com")
-                .password("escapeDoom")
-                .build());
-        authenticationService.register(
-                RegisterRequest.builder()
-                .firstname("Bernhard")
-                .lastname("Taufner")
-                .email("bernhard@escapeddoom.com")
-                .password("escapeDoom")
-                .build());
+//        authenticationService.register(
+//                RegisterRequest.builder()
+//                .firstname("Leon")
+//                .lastname("FreudenThaler")
+//                .email("leon@escapeddoom.com")
+//                .password("escapeDoom")
+//                .build());
+//        authenticationService.register(
+//                RegisterRequest.builder()
+//                .firstname("Bernhard")
+//                .lastname("Taufner")
+//                .email("bernhard@escapeddoom.com")
+//                .password("escapeDoom")
+//                .build());
 
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
-         escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
+//         escaperoomService.createADummyRoomForStart(userRepository.findByEmail("bernhard@escapeddoom.com").get());
 //
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
 //        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
-        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
+//        escaperoomService.createADummyRoomForStart(userRepository.findByEmail("leon@escapeddoom.com").get());
 
 
     }
