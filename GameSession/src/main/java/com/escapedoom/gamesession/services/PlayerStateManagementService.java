@@ -234,7 +234,7 @@ public class PlayerStateManagementService {
 
     public void informClients(Long esceproomId, String eventName, Object toSend) {
         if (sseEmitters.isEmpty()) {
-            log.atInfo().log("No active Emitters ");
+            log.info("No active Emitters ");
             return;
         }
 
