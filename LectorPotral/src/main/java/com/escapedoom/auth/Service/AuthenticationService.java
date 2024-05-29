@@ -19,13 +19,13 @@ import static io.jsonwebtoken.lang.Assert.notNull;
 @Service
 @AllArgsConstructor
 public class AuthenticationService {
+
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
 
-    //TODO No validation of not null
     public AuthenticationResponse register(RegisterRequest registerRequest) {
 
         notNull(registerRequest.getPassword());
